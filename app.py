@@ -17,8 +17,21 @@ def health():
 
 @app.route('/api/scan', methods=["POST"])
 def scan():
-    body = request.data
-    print(body)
+    data = request.get_json()
+    dom = data.get('dom', '')
+    css = data.get('css', '')
+
+    # Print HTML
+    print("HTML Content:")
+    print(dom)
+
+    # Print 2 empty lines
+    print("\n\n")
+
+    # Print CSS
+    print("CSS Content:")
+    print(css)
+
     return f"{randint(1, 100)}"
 
 if __name__ == "__main__":
