@@ -1,6 +1,7 @@
 from flask import Flask, redirect, request, url_for 
 from flask_cors import CORS
 from random import randint 
+from scanner import score_text_contrast
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins":"*"}}) # CHANGE THIS AFTER DOMAINS HAVE BEEN ASSIGNED
@@ -31,6 +32,9 @@ def scan():
     # Print CSS
     print("CSS Content:")
     print(css)
+
+    score = score_text_contrast(dom, css)
+    print("score", score)
 
     return f"{randint(1, 100)}"
 
