@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import cssutils
 import itertools
+import math
 
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
 OTHER_CONTRACT_RATIO = 3
@@ -67,12 +68,21 @@ def get_computed_style(soup, css_rules):
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
+    if len(hex_color) == 3:
+        return tuple(int(hex_color[i] + hex_color[1], 16) for i in range(3))
     return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def calculate_luminance(rgb: tuple[int, ...]):
+    def conv(color):
+        i = float(color) / 255
+        if i < 0.03928:
+            return i / 12.92
+        return ((i + 0.055) / 1.055) ** 2.4
+
     # https://www.w3.org/TR/WCAG20/#relativeluminancedef
-    r, g, b = [x / 255 for x in rgb]
+    r, g, b = [conv(x) for x in rgb]
+
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
@@ -84,8 +94,11 @@ def contrast_ratio(rgb1: tuple[int, ...], rgb2: tuple[int, ...]):
     lighter = max(l_1, l_2)
     darker = min(l_1, l_2)
 
+    print(lighter, darker)
+
     # https://www.accessibility-developer-guide.com/knowledge/colours-and-contrast/how-to-calculate/
-    return (lighter + 0.05) / (darker + 0.05)
+    ratio = (lighter + 0.05) / (darker + 0.05)
+    return math.floor(ratio * 100) / 100.0
 
 
 if __name__ == "__main__":
@@ -103,6 +116,7 @@ if __name__ == "__main__":
         return success
 
     # test values calculated with https://webaim.org/resources/contrastchecker/
+    test("#ffffff", "#000000", 21)
     test("#c9a2d8", "#915e03", 2.53)
     test("#5bbb4f", "#fa4003", 1.49)
     test("#284b2f", "#7ef9dd", 7.7)
@@ -110,6 +124,7 @@ if __name__ == "__main__":
     test("#ddc6e2", "#52dbc6", 1.07)
     test("#77c551", "#d8a85d", 1.02)
 
+    print("\n\nchecking our color palette")
     color_palette = [
         "#90D8B2",
         "#8DD2DD",
