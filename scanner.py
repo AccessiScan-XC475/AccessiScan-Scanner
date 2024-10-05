@@ -32,7 +32,7 @@ def score_text_contrast(html_content, css_content):
             background_rgb = hex_to_rgb(background_color) if background_color.startswith('#') else (255, 255, 255)  # default background color to while
 
             ratio = contrast_ratio(color_rgb, background_rgb)
-            if ratio > NORMAL_TEXT_CONTRAST_RAIO:
+            if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
                 num_accessible += 1
             print(f"Element: {element.name}, Text Color: {color}, Background Color: {background_color}, Contrast Ratio: {ratio:.2f}") 
         else:
