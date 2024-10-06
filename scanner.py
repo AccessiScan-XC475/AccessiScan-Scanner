@@ -1,13 +1,18 @@
 from bs4 import BeautifulSoup
+import re
 import cssutils
 import itertools
 import math
+from PIL import ImageColor
 
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
 OTHER_CONTRACT_RATIO = 3
 
 
 def score_text_contrast(html_content, css_content):
+    """parses html and css content.
+    returns a score based on percentage of text elements with
+    adequate contrast between text and background colors"""
     num_elements = 0
     num_accessible = 0
 
@@ -35,7 +40,7 @@ def score_text_contrast(html_content, css_content):
                 hex_to_rgb(background_color)
                 if background_color.startswith("#")
                 else (255, 255, 255)
-            )  # default background color to while
+            )  # default background color to white
 
             ratio = contrast_ratio(color_rgb, background_rgb)
             if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
@@ -46,27 +51,106 @@ def score_text_contrast(html_content, css_content):
         else:
             # assume colors are accessible if not styling available (white background with black text)
             num_accessible += 1
-    return num_accessible / num_elements if num_elements != 0 else None
+
+    # cannot divide by zero
+    # if no element, no example of not enough contrast
+    if num_elements == 0:
+        return 100
+
+    score = (num_accessible / num_elements) * 100  # to percentage
+    trunc_score = math.floor(score * 10) / 10  # truncate to tenths
+    print(num_accessible, num_elements, trunc_score)
+    return trunc_score
 
 
 # compute color and background color styling
 def get_computed_style(soup, css_rules):
+    """returns dict of elements and their text and background colors"""
     styles = {}
     for rule in css_rules:
         if rule.type == rule.STYLE_RULE:
             selectors = rule.selectorText.split(",")
             for selector in selectors:
-                for el in soup.select(selector.strip()):
-                    styles[el] = {
-                        "color": rule.style.getPropertyValue("color"),
-                        "background-color": rule.style.getPropertyValue(
-                            "background-color"
-                        ),
-                    }
+                print(selector)
+                try:
+                    for el in soup.select(selector.strip()):
+                        color = css_to_hex(rule.style.getPropertyValue("color"))
+                        if color is None:
+                            # default color is black
+                            color = "#000000"
+                        print("color", color)
+                        bg = get_background_color(el)
+                        print("bg", bg)
+                        print(color, bg)
+                        styles[el] = {
+                            "color": color,
+                            "background-color": bg,
+                        }
+                except:
+                    print("skipping.,.")
+                    continue
     return styles
 
 
+def get_background_color(element):
+    """returns the background color of an element and recurses to its parents if none exists.
+    returns white if no parent has background color either."""
+    style = element.get("style", {})
+    bg = style.get("background-color", None)
+    if bg is None:
+        # Default to white if no color found
+        bg = "#FFFFFF"
+        # Check parent until a color is found or no more parents exist
+        parent = element.parent
+        while parent and bg == "#FFFFFF":
+            parent_style = parent.get("style", {})
+            parent_bg = parent_style.get("background-color", None)
+            if parent_bg is not None:
+                bg = parent_bg
+            parent = parent.parent
+    return css_to_hex(bg)
+
+
+def css_to_hex(color):
+    """converts css color into hex"""
+    # check if valid hex
+    if bool(re.match(r"^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$", color)):
+        return color
+
+    # check if is valid string rgb tuple
+    rgb_match = re.match(
+        r"^\s*rgb\s*\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)\s*$",
+        color,
+        re.IGNORECASE,
+    )
+    if rgb_match:
+        # get rgb values
+        r, g, b = map(int, rgb_match.groups())
+
+        # check all rgb values are valid
+        if all(0 <= x <= 255 for x in (r, g, b)):
+            return rgb_to_hex((r, g, b))
+
+    # try to convert css color word (eg red) to hex
+    try:
+        # css color to rgb tuple
+        rgb = ImageColor.getrgb(color)
+        # tuple to hex
+        return "#{:02x}{:02x}{:02x}".format(*rgb)
+    except:
+        return None
+
+
+def rgb_to_hex(rgb):
+    """converts an rgb tuple or list to its hex string.
+    assumes valid rgb input"""
+    r, g, b = [x for x in rgb]
+    return "#{:02x}{:02x}{:02x}".format(r, g, b)
+
+
 def hex_to_rgb(hex_color):
+    """converts a hexcode color into an rgb tuple.
+    assumes valid hex input"""
     hex_color = hex_color.lstrip("#")
     if len(hex_color) == 3:
         return tuple(int(hex_color[i] + hex_color[1], 16) for i in range(3))
@@ -74,6 +158,9 @@ def hex_to_rgb(hex_color):
 
 
 def calculate_luminance(rgb: tuple[int, ...]):
+    """calculates the apparent lumunicance of the input color.
+    assumes color is rgb tuple with min 0 and max 255"""
+
     def conv(color):
         i = float(color) / 255
         if i < 0.03928:
@@ -88,6 +175,7 @@ def calculate_luminance(rgb: tuple[int, ...]):
 
 # calculate the contrast ratio
 def contrast_ratio(rgb1: tuple[int, ...], rgb2: tuple[int, ...]):
+    """returns the contrast ratio between two colors truncated to the hundreths place"""
     l_1 = calculate_luminance(rgb1)
     l_2 = calculate_luminance(rgb2)
 
@@ -102,6 +190,7 @@ def contrast_ratio(rgb1: tuple[int, ...], rgb2: tuple[int, ...]):
 
 
 if __name__ == "__main__":
+    """testing calculated contrast ratios"""
 
     def test(c1, c2, expected):
         print(f"\ncomparing {c1} and {c2}")
