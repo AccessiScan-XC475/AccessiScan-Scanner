@@ -8,7 +8,9 @@ from PIL import ImageColor
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
 OTHER_CONTRACT_RATIO = 3
 
-DEBUG = True
+DEBUG = False
+
+TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
 
 
 def debug_print(*args, **kwargs):
@@ -43,6 +45,12 @@ def score_text_contrast(html_content, css_content):
                 styles[selector][prop.name] = prop.value
 
     for element in soup.find_all(True):
+        if (
+            element.hidden
+            or element.name in TAGS_TO_SKIP
+            or not has_direct_contents(element)
+        ):
+            continue
         num_elements += 1
         elem_style = get_computed_style(element, styles)
         debug_print(element, elem_style)
@@ -71,6 +79,16 @@ def score_text_contrast(html_content, css_content):
     trunc_score = math.floor(score * 10) / 10  # truncate to tenths
     debug_print(num_accessible, num_elements, trunc_score)
     return trunc_score
+
+
+def has_direct_contents(element):
+    if not element.contents:
+        return False
+
+    for child in element.contents:
+        if child.name is None:
+            return True
+    return False
 
 
 def get_computed_style(element, styles):
