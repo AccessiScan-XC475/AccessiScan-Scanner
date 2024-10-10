@@ -1,12 +1,7 @@
-# from bs4 import BeautifulSoup
-# import re
-# import cssutils
-# import itertools
-# import math
-# from PIL import ImageColor
-from contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
-from css_parser import parse_css
-from html_utils import parse_html, get_computed_style
+from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
+from utils.css_parser import parse_css
+from utils.html_utils import parse_html, get_computed_style, has_direct_contents, get_background_color
+from utils.debug import debug_print
 import math
 
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
@@ -14,7 +9,6 @@ OTHER_CONTRACT_RATIO = 3
 
 
 TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
-
 
 
 def score_text_contrast(html_content, css_content):
@@ -25,23 +19,11 @@ def score_text_contrast(html_content, css_content):
     num_accessible = 0
 
     # create html parser from html content / dom
-    soup = BeautifulSoup(html_content, "html.parser")
+    #soup = BeautifulSoup(html_content, "html.parser")
+    soup = parse_html(html_content)
+    styles = parse_css(css_content)
 
-    # create css parser wih css content
-    css_parser = cssutils.CSSParser()
-    parsed_stylesheet = css_parser.parseString(css_content)
-    debug_print("CSS CONTENT", parsed_stylesheet)
-    debug_print(type(parsed_stylesheet))
-
-    styles = {}
-    for rule in parsed_stylesheet:
-        if rule.type == rule.STYLE_RULE:
-            debug_print(rule)
-            selector = rule.selectorText
-            styles[selector] = {}
-            for prop in rule.style:
-                styles[selector][prop.name] = prop.value
-
+    #iterate through all elements in the HTML
     for element in soup.find_all(True):
         if (
             element.hidden
@@ -52,18 +34,23 @@ def score_text_contrast(html_content, css_content):
         num_elements += 1
         elem_style = get_computed_style(element, styles)
         debug_print(element, elem_style)
+
+        #get the text color and background color
         color = css_to_hex(elem_style.get("color", ""))
         background_color = css_to_hex(elem_style.get("background-color", ""))
 
+        #convert colors to rgb values
         color_rgb = hex_to_rgb(color if color is not None else "#000000")
         bg_rgb = hex_to_rgb(
             background_color if background_color is not None else "#FFFFFF"
         )
 
+        #calcualte the contrast ratio
         ratio = contrast_ratio(color_rgb, bg_rgb)
         if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
             num_accessible += 1
 
+        #debug print for each element's contrast details
         debug_print(
             f"Element: {element.name}, Text Color: {color}, Background Color: {background_color}, Contrast Ratio: {ratio:.2f}"
         )
@@ -77,36 +64,6 @@ def score_text_contrast(html_content, css_content):
     trunc_score = math.floor(score * 10) / 10  # truncate to tenths
     debug_print(num_accessible, num_elements, trunc_score)
     return trunc_score
-
-
-def has_direct_contents(element):
-    if not element.contents:
-        return False
-
-    for child in element.contents:
-        if child.name is None:
-            return True
-    return False
-
-
-
-def get_background_color(element):
-    """returns the background color of an element and recurses to its parents if none exists.
-    returns white if no parent has background color either."""
-    style = element.get("style", {})
-    bg = style.get("background-color", None)
-    if bg is None:
-        # Default to white if no color found
-        bg = "#FFFFFF"
-        # Check parent until a color is found or no more parents exist
-        parent = element.parent
-        while parent and bg == "#FFFFFF":
-            parent_style = parent.get("style", {})
-            parent_bg = parent_style.get("background-color", None)
-            if parent_bg is not None:
-                bg = parent_bg
-            parent = parent.parent
-    return css_to_hex(bg)
 
 
 
