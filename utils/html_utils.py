@@ -1,6 +1,7 @@
 
 from bs4 import BeautifulSoup
 from utils.contrast_utils import css_to_hex
+from utils.debug import debug_print
 
 def parse_html(html_content):
     # Parse HTML content and return the soup object
