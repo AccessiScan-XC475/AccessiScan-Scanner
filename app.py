@@ -52,7 +52,8 @@ def scan_large_text():
     # Print a simple message to confirm this endpoint works
     print("Large text scan endpoint hit")
 
-    # For now just return placeholder message 
+    text_score = score_text_accessibility(dom, css)
+    print ("score", text_score)
     return f"{text_score}"
 
 
