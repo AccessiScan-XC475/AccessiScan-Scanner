@@ -20,7 +20,7 @@ def health():
     return "OK"
 
 
-@app.route("/api/scan", methods=["POST"])
+@app.route("/api/scan-contrasting-colors", methods=["POST"])
 def scan():
     data = request.get_json()
     dom = data.get("dom", "")
@@ -41,6 +41,19 @@ def scan():
     print("score", score)
 
     return f"{score}"
+
+
+@app.route("/api/scan-large-text", methods=["POST"])
+def scan_large_text():
+    data = request.get_json()
+    dom = data.get("dom", "")
+    css = data.get("css", "")
+
+    # Print a simple message to confirm this endpoint works
+    print("Large text scan endpoint hit")
+
+    # For now just return placeholder message 
+    return "large text score"
 
 
 if __name__ == "__main__":
