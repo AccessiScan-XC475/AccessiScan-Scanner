@@ -1,34 +1,41 @@
-from bs4 import BeautifulSoup
-import re
 from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
 from utils.css_parser import parse_css
 from utils.html_utils import parse_html, get_computed_style, has_direct_contents, get_background_color
 from utils.debug import debug_print
+import math
+import re
 
-# Accessibility constants
 NORMAL_TEXT_SIZE_PX = 16
 LARGE_TEXT_SIZE_PX = 18
 BOLD_LARGE_TEXT_SIZE_PX = 14
 MIN_FONT_WEIGHT_BOLD = 700
 
-DEBUG = False
 TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
 
 def score_text_accessibility(html_content, css_content):
-    """Scores the text accessibility based on font size and weight."""
+    """Parses HTML and CSS content.
+    Returns a score based on the percentage of text elements with
+    accessible font sizes and font weights as per WCAG guidelines."""
+    
     num_elements = 0
     num_accessible = 0
 
-    # Parse HTML and CSS content
-    soup = BeautifulSoup(html_content, "html.parser")
+    # Create an HTML parser from HTML content / DOM
+    soup = parse_html(html_content)
     styles = parse_css(css_content)
 
+    # Iterate through all elements in the HTML
     for element in soup.find_all(True):
-        if element.name in TAGS_TO_SKIP:
+        if (
+            element.hidden
+            or element.name in TAGS_TO_SKIP
+            or not element.get_text(strip=True)  # Skipping elements without visible text
+        ):
             continue
 
         num_elements += 1
         elem_style = get_computed_style(element, styles)
+        debug_print(element, elem_style)
 
         # Get font size and weight from CSS
         font_size = elem_style.get("font-size", "16px")
@@ -38,17 +45,21 @@ def score_text_accessibility(html_content, css_content):
         if is_text_accessible(font_size, font_weight):
             num_accessible += 1
 
+        # Debug print for each element's text accessibility details
         debug_print(
             f"Element: {element.name}, Font Size: {font_size}, Font Weight: {font_weight}"
         )
 
-    # Calculate accessibility score
+    # Avoid dividing by zero; if no elements, assume fully accessible
     if num_elements == 0:
         return 100
 
+    # Calculate the score as a percentage of accessible elements
     text_score = (num_accessible / num_elements) * 100
-    return round(text_score, 1)
-
+    trunc_score = math.floor(text_score * 10) / 10  # Truncate to tenths for consistent scoring
+    debug_print(num_accessible, num_elements, trunc_score)
+    
+    return trunc_score
 
 def is_text_accessible(font_size: str, font_weight: int) -> bool:
     """Checks if the text size and weight comply with WCAG accessibility guidelines."""
@@ -58,12 +69,14 @@ def is_text_accessible(font_size: str, font_weight: int) -> bool:
     if font_size_value >= LARGE_TEXT_SIZE_PX or (font_weight >= MIN_FONT_WEIGHT_BOLD and font_size_value >= BOLD_LARGE_TEXT_SIZE_PX):
         return True
 
-    # Check if it's normal size and at least 16px
+    # Check if it's normal text size and at least 16px
     return font_size_value >= NORMAL_TEXT_SIZE_PX
 
 
 if __name__ == "__main__":
     """Example usage of text accessibility scanner."""
+
+    # Sample HTML and CSS content
     html_content = """
     <html>
     <head><style>p { font-size: 20px; }</style></head>
@@ -85,5 +98,6 @@ if __name__ == "__main__":
     }
     """
 
+    # Calculate text accessibility score
     text_score = score_text_accessibility(html_content, css_content)
     print(f"Text Accessibility Score: {text_score}%")

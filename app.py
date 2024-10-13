@@ -1,6 +1,7 @@
 from flask import Flask, redirect, request, url_for
 from flask_cors import CORS
 from scanner import score_text_contrast
+from textscanner import score_text_accessibility
 
 app = Flask(__name__)
 cors = CORS(
