@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 import re
-import cssutils
+from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
+from utils.css_parser import parse_css
+from utils.html_utils import parse_html, get_computed_style, has_direct_contents, get_background_color
+from utils.debug import debug_print
 
 # Accessibility constants
 NORMAL_TEXT_SIZE_PX = 16
@@ -11,30 +14,14 @@ MIN_FONT_WEIGHT_BOLD = 700
 DEBUG = False
 TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
 
-def debug_print(*args, **kwargs):
-    """Prints messages only if debug mode is enabled."""
-    if DEBUG:
-        print(*args, **kwargs)
-
 def score_text_accessibility(html_content, css_content):
     """Scores the text accessibility based on font size and weight."""
     num_elements = 0
     num_accessible = 0
 
-    # Parse HTML content
+    # Parse HTML and CSS content
     soup = BeautifulSoup(html_content, "html.parser")
-
-    # Parse CSS content
-    css_parser = cssutils.CSSParser()
-    parsed_stylesheet = css_parser.parseString(css_content)
-
-    styles = {}
-    for rule in parsed_stylesheet:
-        if rule.type == rule.STYLE_RULE:
-            selector = rule.selectorText
-            styles[selector] = {}
-            for prop in rule.style:
-                styles[selector][prop.name] = prop.value
+    styles = parse_css(css_content)
 
     for element in soup.find_all(True):
         if element.name in TAGS_TO_SKIP:
@@ -60,45 +47,19 @@ def score_text_accessibility(html_content, css_content):
         return 100
 
     score = (num_accessible / num_elements) * 100
-    trunc_score = round(score, 1)
-    return trunc_score
+    return round(score, 1)
 
 
 def is_text_accessible(font_size: str, font_weight: int) -> bool:
     """Checks if the text size and weight comply with WCAG accessibility guidelines."""
-    # Extract the numeric value from font size (assumes px units)
     font_size_value = int(re.match(r"\d+", font_size).group())
 
-    # Check if it's large text
-    if font_size_value >= LARGE_TEXT_SIZE_PX:
-        return True
-    if font_weight >= MIN_FONT_WEIGHT_BOLD and font_size_value >= BOLD_LARGE_TEXT_SIZE_PX:
+    # Check if it's large text or bold large text
+    if font_size_value >= LARGE_TEXT_SIZE_PX or (font_weight >= MIN_FONT_WEIGHT_BOLD and font_size_value >= BOLD_LARGE_TEXT_SIZE_PX):
         return True
 
-    # If text is normal size, it should be at least 16px
+    # Check if it's normal size and at least 16px
     return font_size_value >= NORMAL_TEXT_SIZE_PX
-
-
-def get_computed_style(element, styles):
-    """Retrieves the computed styles (CSS) for an element."""
-    elem_style = {}
-    classes = ["." + x for x in element.attrs.get("class", [])]
-    id = ["#" + x for x in element.attrs.get("id", [])]
-    references = ["*", element.name] + classes + id
-    for ref in references:
-        if ref in styles:
-            for prop, value in styles[ref].items():
-                elem_style[prop] = value
-
-    # Set default font size if not found in CSS
-    if "font-size" not in elem_style:
-        elem_style["font-size"] = "16px"  # Default size
-
-    # Set default font weight if not found in CSS
-    if "font-weight" not in elem_style:
-        elem_style["font-weight"] = "400"  # Normal weight
-
-    return elem_style
 
 
 if __name__ == "__main__":
