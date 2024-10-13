@@ -46,8 +46,8 @@ def score_text_accessibility(html_content, css_content):
     if num_elements == 0:
         return 100
 
-    score = (num_accessible / num_elements) * 100
-    return round(score, 1)
+    text_score = (num_accessible / num_elements) * 100
+    return round(text_score, 1)
 
 
 def is_text_accessible(font_size: str, font_weight: int) -> bool:
@@ -85,5 +85,5 @@ if __name__ == "__main__":
     }
     """
 
-    score = score_text_accessibility(html_content, css_content)
-    print(f"Text Accessibility Score: {score}%")
+    text_score = score_text_accessibility(html_content, css_content)
+    print(f"Text Accessibility Score: {text_score}%")
