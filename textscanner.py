@@ -20,7 +20,7 @@ def score_text_accessibility(html, css):
     Parses HTML and CSS content.
     Returns a score based on the percentage of text elements with
     accessible font sizes and font weights as per WCAG guidelines.
-    """  
+    """
     num_elements = 0
     num_accessible = 0
 
