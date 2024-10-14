@@ -54,9 +54,10 @@ def scan_large_text():
     print("Large text scan endpoint hit")
 
     text_score = score_text_accessibility(dom, css)
-    print ("score", text_score)
+    print("score", text_score)
     return f"{text_score}"
 
 
 if __name__ == "__main__":
+    raise Exception("crash program")
     app.run(debug=True, host="0.0.0.0", port=4200)
