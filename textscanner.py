@@ -1,5 +1,6 @@
 """
-Module to calculate text accessibility scores based on font sizes and weights as per WCAG guidelines.
+Module to calculate text accessibility scores based on 
+font sizes and weights as per WCAG guidelines.
 """
 import math
 import re
@@ -19,8 +20,7 @@ def score_text_accessibility(html, css):
     Parses HTML and CSS content.
     Returns a score based on the percentage of text elements with
     accessible font sizes and font weights as per WCAG guidelines.
-    """
-    
+    """  
     num_elements = 0
     num_accessible = 0
 
@@ -62,7 +62,6 @@ def score_text_accessibility(html, css):
     text_score = (num_accessible / num_elements) * 100
     trunc_score = math.floor(text_score * 10) / 10  # Truncate to tenths for consistent scoring
     debug_print(num_accessible, num_elements, trunc_score)
-    
     return trunc_score
 
 def is_text_accessible(font_size: str, font_weight: int) -> bool:
@@ -72,7 +71,9 @@ def is_text_accessible(font_size: str, font_weight: int) -> bool:
     font_size_value = int(re.match(r"\d+", font_size).group())
 
     # Check if it's large text or bold large text
-    if font_size_value >= LARGE_TEXT_SIZE_PX or (font_weight >= MIN_FONT_WEIGHT_BOLD and font_size_value >= BOLD_LARGE_TEXT_SIZE_PX):
+    if font_size_value >= LARGE_TEXT_SIZE_PX or (
+        font_weight >= MIN_FONT_WEIGHT_BOLD and font_size_value >= BOLD_LARGE_TEXT_SIZE_PX
+    ):
         return True
 
     # Check if it's normal text size and at least 16px
@@ -82,7 +83,7 @@ def is_text_accessible(font_size: str, font_weight: int) -> bool:
 if __name__ == "__main__":
     # Example usage of text accessibility scanner.
     # Sample HTML and CSS content
-    sample_html = """
+    SAMPLE_HTML = """
     <html>
     <head><style>p { font-size: 20px; }</style></head>
     <body>
@@ -92,7 +93,7 @@ if __name__ == "__main__":
     </body>
     </html>
     """
-    sample_css = """
+    SAMPLE_CSS = """
     p {
         font-size: 16px;
         font-weight: 400;
@@ -104,5 +105,5 @@ if __name__ == "__main__":
     """
 
     # Calculate text accessibility score
-    text_accessibility_score = score_text_accessibility(sample_html, sample_css)
+    text_accessibility_score = score_text_accessibility(SAMPLE_HTML, SAMPLE_CSS)
     print(f"Text Accessibility Score: {text_accessibility_score}%")

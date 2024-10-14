@@ -28,4 +28,3 @@ def parse_css(css_content):
             for prop in rule.style:
                 styles[selector][prop.name] = prop.value
     return styles
-

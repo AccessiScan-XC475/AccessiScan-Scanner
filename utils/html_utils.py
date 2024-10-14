@@ -93,6 +93,3 @@ def get_background_color(element):
                 bg = parent_bg
             parent = parent.parent
     return css_to_hex(bg)
-
-
-
