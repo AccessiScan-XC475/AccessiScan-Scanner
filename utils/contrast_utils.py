@@ -1,3 +1,7 @@
+"""
+Utility module for handling color conversions and calculating contrast ratios
+according to WCAG accessibility guidelines.
+"""
 import math
 import re
 from PIL import ImageColor

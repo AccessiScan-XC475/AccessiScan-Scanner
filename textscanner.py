@@ -1,3 +1,6 @@
+"""
+Module to calculate text accessibility scores based on font sizes and weights as per WCAG guidelines.
+"""
 import math
 import re
 from utils.css_parser import parse_css

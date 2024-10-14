@@ -1,3 +1,4 @@
+"""Module to calculate text contrast scores for accessibility."""
 import math
 import itertools
 from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
