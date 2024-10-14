@@ -1,18 +1,39 @@
-
+"""
+This module provelement_ides utilities for parsing and extracting information
+from HTML content, including computing styles and retrieving background colors.
+It also includes functions to check for direct content and parse HTML elements.
+"""
 from bs4 import BeautifulSoup
 from utils.contrast_utils import css_to_hex
 from utils.debug import debug_print
 
 def parse_html(html_content):
-    # Parse HTML content and return the soup object
+    """
+    Parses the provelement_ided HTML content and returns a BeautifulSoup object.
+    
+    Args:
+        html_content (str): The raw HTML content to parse.
+    
+    Returns:
+        BeautifulSoup: The parsed HTML content.
+    """
     return BeautifulSoup(html_content, "html.parser")
 
 def get_computed_style(element, styles):
+    """
+    Computes the final style of an HTML element based on its classes, element_id, and tag name.
+
+    Args:
+        element (Tag): The HTML element whose style is being computed.
+        styles (dict): The parsed CSS styles dictionary.
+
+    Returns:
+        dict: The computed style dictionary for the element.
+    """
     elem_style = {}
     classes = ["." + x for x in element.attrs.get("class", [])]
-    id = ["#" + x for x in element.attrs.get("id", [])]
-    # order of precedence
-    references = ["*", element.name] + classes + id
+    element_id = ["#" + x for x in element.attrs.get("element_id", [])]
+    references = ["*", element.name] + classes + element_id
     debug_print(references)
     for ref in references:
         if ref in styles:
@@ -29,6 +50,15 @@ def get_computed_style(element, styles):
     return elem_style
 
 def has_direct_contents(element):
+    """
+    Checks if the given element has direct textual content, ignoring nested tags.
+
+    Args:
+        element (Tag): The HTML element to check.
+
+    Returns:
+        bool: True if the element has direct text content, False otherwise.
+    """
     if not element.contents:
         return False
 
@@ -39,8 +69,16 @@ def has_direct_contents(element):
 
 
 def get_background_color(element):
-    """returns the background color of an element and recurses to its parents if none exists.
-    returns white if no parent has background color either."""
+    """
+    Retrieves the background color of an HTML element, recursing through
+    its parent elements if no background color is set.
+
+    Args:
+        element (Tag): The HTML element whose background color is needed.
+
+    Returns:
+        str: The background color in hexadecimal format (e.g., #FFFFFF).
+    """
     style = element.get("style", {})
     bg = style.get("background-color", None)
     if bg is None:
@@ -55,4 +93,6 @@ def get_background_color(element):
                 bg = parent_bg
             parent = parent.parent
     return css_to_hex(bg)
+
+
 
