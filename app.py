@@ -1,3 +1,9 @@
+"""
+This module sets up a Flask web server for a web accessibility scanner API.
+It includes endpoints to assess text color contrast and large text accessibility
+in provided HTML and CSS content. The API serves as a backend for scanning web content
+to ensure accessibility standards are met.
+"""
 from flask import Flask, request
 from flask_cors import CORS
 from scanner import score_text_contrast
