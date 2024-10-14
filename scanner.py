@@ -52,7 +52,8 @@ def score_text_contrast(html_content, css_content):
 
         # Debug print for each element's contrast details
         debug_print(
-            f"Element: {element.name}, Text Color: {color}, Background Color: {background_color}, Contrast Ratio: {ratio:.2f}"
+            f"Element: {element.name}, Text Color: {color}, "
+            f"Background Color: {background_color}, Contrast Ratio: {ratio:.2f}"
         )
 
     # Cannot divide by zero
@@ -69,15 +70,16 @@ def score_text_contrast(html_content, css_content):
 if __name__ == "__main__":
     # Testing calculated contrast ratios
 
-    def test(color1, color2, expected):
+    def test(test_color1, test_color2, expected):
         """
-        Test function to compare two colors and check if their contrast ratio matches the expected value.
+        Test function to compare two colors and check if their contrast ratio 
+        matches the expected value.
         """
-        print(f"\ncomparing {color1} and {color2}")
+        print(f"\ncomparing {test_color1} and {test_color2}")
 
-        rgb1 = hex_to_rgb(color1)
-        rgb2 = hex_to_rgb(color2)
-        x = contrast_ratio(rgb1, rgb2)
+        test_rgb1 = hex_to_rgb(test_color1)
+        test_rgb2 = hex_to_rgb(test_color2)
+        x = contrast_ratio(test_rgb1, test_rgb2)
         success = x == expected
         print(x, expected, success)
         return success
@@ -99,8 +101,7 @@ if __name__ == "__main__":
         "#8B95F6",
         "#9B8BF4",
     ]
-    for color1, color2 in itertools.combinations(color_palette, 2):
-        rgb1 = hex_to_rgb(color1)
-        rgb2 = hex_to_rgb(color2)
+    for palette_color1, palette_color2 in itertools.combinations(color_palette, 2):
+        rgb1 = hex_to_rgb(palette_color1)
+        rgb2 = hex_to_rgb(palette_color2)
         print(contrast_ratio(rgb1, rgb2))
-
