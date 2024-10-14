@@ -11,7 +11,7 @@ MIN_FONT_WEIGHT_BOLD = 700
 
 TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
 
-def score_text_accessibility(html_content, css_content):
+def score_text_accessibility(html, css):
     """
     Parses HTML and CSS content.
     Returns a score based on the percentage of text elements with
@@ -22,8 +22,8 @@ def score_text_accessibility(html_content, css_content):
     num_accessible = 0
 
     # Create an HTML parser from HTML content / DOM
-    soup = parse_html(html_content)
-    styles = parse_css(css_content)
+    soup = parse_html(html)
+    styles = parse_css(css)
 
     # Iterate through all elements in the HTML
     for element in soup.find_all(True):
@@ -79,7 +79,7 @@ def is_text_accessible(font_size: str, font_weight: int) -> bool:
 if __name__ == "__main__":
     # Example usage of text accessibility scanner.
     # Sample HTML and CSS content
-    html_content = """
+    sample_html = """
     <html>
     <head><style>p { font-size: 20px; }</style></head>
     <body>
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     </body>
     </html>
     """
-    css_content = """
+    sample_css = """
     p {
         font-size: 16px;
         font-weight: 400;
@@ -101,5 +101,5 @@ if __name__ == "__main__":
     """
 
     # Calculate text accessibility score
-    text_score = score_text_accessibility(html_content, css_content)
-    print(f"Text Accessibility Score: {text_score}%")
+    text_accessibility_score = score_text_accessibility(sample_html, sample_css)
+    print(f"Text Accessibility Score: {text_accessibility_score}%")
