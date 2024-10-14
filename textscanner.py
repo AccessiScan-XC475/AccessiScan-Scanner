@@ -1,9 +1,8 @@
-from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
-from utils.css_parser import parse_css
-from utils.html_utils import parse_html, get_computed_style, has_direct_contents, get_background_color
-from utils.debug import debug_print
 import math
 import re
+from utils.css_parser import parse_css
+from utils.html_utils import parse_html, get_computed_style
+from utils.debug import debug_print
 
 NORMAL_TEXT_SIZE_PX = 16
 LARGE_TEXT_SIZE_PX = 18
@@ -13,9 +12,11 @@ MIN_FONT_WEIGHT_BOLD = 700
 TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
 
 def score_text_accessibility(html_content, css_content):
-    """Parses HTML and CSS content.
+    """
+    Parses HTML and CSS content.
     Returns a score based on the percentage of text elements with
-    accessible font sizes and font weights as per WCAG guidelines."""
+    accessible font sizes and font weights as per WCAG guidelines.
+    """
     
     num_elements = 0
     num_accessible = 0
@@ -62,7 +63,9 @@ def score_text_accessibility(html_content, css_content):
     return trunc_score
 
 def is_text_accessible(font_size: str, font_weight: int) -> bool:
-    """Checks if the text size and weight comply with WCAG accessibility guidelines."""
+    """
+    Checks if the text size and weight comply with WCAG accessibility guidelines.
+    """
     font_size_value = int(re.match(r"\d+", font_size).group())
 
     # Check if it's large text or bold large text
@@ -74,8 +77,7 @@ def is_text_accessible(font_size: str, font_weight: int) -> bool:
 
 
 if __name__ == "__main__":
-    """Example usage of text accessibility scanner."""
-
+    # Example usage of text accessibility scanner.
     # Sample HTML and CSS content
     html_content = """
     <html>

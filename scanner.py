@@ -1,9 +1,9 @@
+import math
+import itertools
 from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
 from utils.css_parser import parse_css
 from utils.html_utils import parse_html, get_computed_style, has_direct_contents
 from utils.debug import debug_print
-import math
-import itertools
 
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
 OTHER_CONTRACT_RATIO = 3
