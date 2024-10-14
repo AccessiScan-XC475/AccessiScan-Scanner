@@ -32,7 +32,7 @@ def css_to_hex(color):
     # Try to convert css color word (e.g., 'red') to hex
     try:
         rgb = ImageColor.getrgb(color)
-        return "#{:02x}{:02x}{:02x}".format(*rgb)
+        return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
     except ValueError:
         return None
 

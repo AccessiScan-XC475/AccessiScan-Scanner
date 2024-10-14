@@ -12,8 +12,9 @@ def parse_css(css_content):
         css_content (str): The raw CSS content as a string.
 
     Returns:
-        dict: A dictionary where each key is a CSS selector and the corresponding value
-              is another dictionary of style properties (e.g., 'font-size') and their values (e.g., '16px').
+        A dictionary where each key is a CSS selector and the corresponding value
+              is another dictionary of style properties (e.g., 'font-size') 
+              and their values (e.g., '16px').
     """
     css_parser = cssutils.CSSParser()
     parsed_stylesheet = css_parser.parseString(css_content)
