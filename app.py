@@ -6,8 +6,8 @@ to ensure accessibility standards are met.
 """
 from flask import Flask, request
 from flask_cors import CORS
-from scanner import score_text_contrast
-from textscanner import score_text_accessibility
+from scanners.color_contrast_scanner import score_text_contrast
+from scanners.text_scanner import score_text_accessibility
 
 app = Flask(__name__)
 cors = CORS(
@@ -36,7 +36,7 @@ def health():
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
-def scan():
+def scan_contrasting_colors():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
     Returns the color contrast score.
@@ -44,17 +44,6 @@ def scan():
     data = request.get_json()
     dom = data.get("dom", "")
     css = data.get("css", "")
-
-    # Print HTML
-    print("HTML Content:")
-    print(dom)
-
-    # Print 2 empty lines
-    print("\n\n")
-
-    # Print CSS
-    print("CSS Content:")
-    print(css)
 
     score = score_text_contrast(dom, css)
     print("score", score)

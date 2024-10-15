@@ -4,8 +4,8 @@ font sizes and weights as per WCAG guidelines.
 """
 import math
 import re
-from utils.css_parser import parse_css
-from utils.html_utils import parse_html, get_computed_style
+from services.css_parser import parse_css
+from services.html_parser import parse_html, get_computed_style
 from utils.debug import debug_print
 
 NORMAL_TEXT_SIZE_PX = 16
