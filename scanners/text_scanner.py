@@ -62,6 +62,21 @@ def score_text_accessibility(html, css):
     debug_print(text_num_accessible, text_num_elements, trunc_score)
     return [trunc_score, text_accessible_elements, text_inaccessible_elements]
 
+def is_text_accessible(font_size: str, font_weight: int) -> bool:
+    """
+    Checks if text is adequately sized.
+    """
+    font_size_value = int(re.match(r"\d+", font_size).group())
+
+    # Check if it's large text or bold large text
+    if font_size_value >= LARGE_TEXT_SIZE_PX or (
+        font_weight >= MIN_FONT_WEIGHT_BOLD and font_size_value >= BOLD_LARGE_TEXT_SIZE_PX
+    ):
+        return True
+
+    # Check if it's normal text size and at least 16px
+    return font_size_value >= NORMAL_TEXT_SIZE_PX
+
 if __name__ == "__main__":
     # Example usage
     SAMPLE_HTML = """
