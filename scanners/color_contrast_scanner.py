@@ -47,7 +47,7 @@ def score_text_contrast(html_content, css_content):
             background_color if background_color is not None else "#FFFFFF"
         )
 
-        # Calcualte the contrast ratio
+        # Calculate the contrast ratio
         ratio = contrast_ratio(color_rgb, bg_rgb)
         if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
             num_accessible += 1
