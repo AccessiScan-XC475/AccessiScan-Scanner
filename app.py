@@ -4,10 +4,10 @@ It includes endpoints to assess text color contrast and large text accessibility
 in provided HTML and CSS content. The API serves as a backend for scanning web content
 to ensure accessibility standards are met.
 """
-from flask import Flask, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-from scanner import score_text_contrast
-from textscanner import score_text_accessibility
+from scanners.color_contrast_scanner import score_text_contrast
+from scanners.text_scanner import score_text_accessibility
 
 app = Flask(__name__)
 cors = CORS(
@@ -45,21 +45,16 @@ def scan():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    # Print HTML
-    print("HTML Content:")
-    print(dom)
-
-    # Print 2 empty lines
-    print("\n\n")
-
-    # Print CSS
-    print("CSS Content:")
-    print(css)
-
-    score = score_text_contrast(dom, css)
+    [score, accessible_elements, inaccessible_elements] = score_text_contrast(dom, css)
     print("score", score)
+    print("Inaccessible elements:", inaccessible_elements)
+    print("Accessible elements:", accessible_elements)
 
-    return f"{score}"
+    # Convert the inaccessible elements into string representations (e.g., HTML)
+    inaccessible_html = [str(element) for element in inaccessible_elements]
+
+    # Return the score and the inaccessible elements
+    return {"score": score, "inaccessible_elements": inaccessible_html}
 
 
 @app.route("/api/scan-large-text", methods=["POST"])
@@ -77,7 +72,7 @@ def scan_large_text():
 
     text_score = score_text_accessibility(dom, css)
     print ("score", text_score)
-    return f"{text_score}"
+    return jsonify({"score": text_score})
 
 
 if __name__ == "__main__":
