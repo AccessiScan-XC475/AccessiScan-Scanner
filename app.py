@@ -67,16 +67,17 @@ def scan_large_text():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    [text_score, text_accessible_elements, text_inaccessible_elements] = score_text_accessibility(dom, css)
-    print("score", text_score)
-    print("Inaccessible elements:", text_inaccessible_elements)
-    print("Accessible elements:", text_accessible_elements)
+    [score, accessible_elements, inaccessible_elements] = score_text_accessibility(dom, css)
+    print("score", score)
+    print("Inaccessible elements:", inaccessible_elements)
+    print("Accessible elements:", accessible_elements)
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
-    text_inaccessible_html = [str(element) for element in text_inaccessible_elements]
+    text_inaccessible_html = [str(element) for element in inaccessible_elements]
 
     # Return the score and the inaccessible elements
-    return {"score": text_score, "inaccessible_elements": text_inaccessible_html}
+    return {"score": score, "inaccessible_elements": text_inaccessible_html}
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)
+  

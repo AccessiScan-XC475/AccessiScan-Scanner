@@ -1,3 +1,4 @@
+"""Module to calculate text contrast scores for accessibility."""
 import math
 import re
 from utils.debug import debug_print
@@ -12,6 +13,11 @@ MIN_FONT_WEIGHT_BOLD = 700
 TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
 
 def score_text_accessibility(html, css):
+    """
+    Parses HTML and CSS content.
+    Returns a score based on percentage of text elements with
+    adequate contrast between text and background colors
+    """
     text_num_elements = 0
     text_num_accessible = 0
     text_accessible_elements = []
