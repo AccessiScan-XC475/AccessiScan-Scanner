@@ -12,7 +12,7 @@ from scanners.text_scanner import score_text_accessibility
 app = Flask(__name__)
 cors = CORS(
     app, resources={r"/*": {"origins": "*"}}
-)  # CHANGE THIS AFTER DOMAINS HAVE BEEN ASSIGNED
+)# CHANGE THIS AFTER DOMAINS HAVE BEEN ASSIGNED
 
 
 @app.route("/")
@@ -36,7 +36,7 @@ def health():
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
-def scan_contrasting_colors():
+def scan():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
     Returns the color contrast score.
@@ -45,10 +45,16 @@ def scan_contrasting_colors():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    score = score_text_contrast(dom, css)
+    [score, accessible_elements, inaccessible_elements] = score_text_contrast(dom, css)
     print("score", score)
+    print("Inaccessible elements:", inaccessible_elements)
+    print("Accessible elements:", accessible_elements)
 
-    return f"{score}"
+    # Convert the inaccessible elements into string representations (e.g., HTML)
+    inaccessible_html = [str(element) for element in inaccessible_elements]
+
+    # Return the score and the inaccessible elements
+    return {"score": score, "inaccessible_elements": inaccessible_html}
 
 
 @app.route("/api/scan-large-text", methods=["POST"])
@@ -61,13 +67,16 @@ def scan_large_text():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    # Print a simple message to confirm this endpoint works
-    print("Large text scan endpoint hit")
+    [text_score, text_accessible_elements, text_inaccessible_elements] = score_text_accessibility(dom, css)
+    print("score", text_score)
+    print("Inaccessible elements:", text_inaccessible_elements)
+    print("Accessible elements:", text_accessible_elements)
 
-    text_score = score_text_accessibility(dom, css)
-    print ("score", text_score)
-    return f"{text_score}"
+    # Convert the inaccessible elements into string representations (e.g., HTML)
+    text_inaccessible_html = [str(element) for element in text_inaccessible_elements]
 
+    # Return the score and the inaccessible elements
+    return {"score": text_score, "inaccessible_elements": text_inaccessible_html}
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)
