@@ -2,9 +2,11 @@
 import math
 import itertools
 from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
+
 from services.css_parser import parse_css
 from services.html_parser import parse_html, get_computed_style, has_direct_contents
 from utils.debug import debug_print
+
 
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
 OTHER_CONTRACT_RATIO = 3
@@ -19,8 +21,10 @@ def score_text_contrast(html_content, css_content):
     """
     num_elements = 0
     num_accessible = 0
+
     accessible_elements = []  # List for accessible elements
     inaccessible_elements = []  # List for inaccessible elements
+
 
     soup = parse_html(html_content)
     styles = parse_css(css_content)
@@ -51,12 +55,18 @@ def score_text_contrast(html_content, css_content):
         ratio = contrast_ratio(color_rgb, bg_rgb)
         if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
             num_accessible += 1
+
             accessible_elements.append(element)
         else:
             inaccessible_elements.append(element)
 
         # Debug print for each element's contrast details
         print(
+
+
+        # Debug print for each element's contrast details
+        debug_print(
+
             f"Element: {element.name}, Text Color: {color}, "
             f"Background Color: {background_color}, Contrast Ratio: {ratio:.2f}"
         )
@@ -68,7 +78,11 @@ def score_text_contrast(html_content, css_content):
     score = (num_accessible / num_elements) * 100  # to percentage
     trunc_score = math.floor(score * 10) / 10  # truncate to tenths
     debug_print(num_accessible, num_elements, trunc_score)
+
     return [trunc_score, accessible_elements, inaccessible_elements]
+
+
+
 
 
 

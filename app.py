@@ -36,7 +36,7 @@ def health():
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
-def scan():
+def scan_contrasting_colors():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
     Returns the color contrast score.
@@ -45,7 +45,11 @@ def scan():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
+
     [score, accessible_elements, inaccessible_elements] = score_text_contrast(dom, css)
+
+   
+
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
     print("Accessible elements:", accessible_elements)
