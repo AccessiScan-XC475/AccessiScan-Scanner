@@ -60,7 +60,7 @@ def score_text_contrast(html_content, css_content):
         # Debug print for each element's contrast details
         print(
             f"Element: {element.name}, Text Color: {color}, "
-            f"""Background Color: {background_color}, Contrast Ratio: {ratio:.2f}, 
+            f"""Background Color: {background_color}, Contrast Ratio: {ratio:.2f},
             Is Accessible: {ratio >= NORMAL_TEXT_CONTRAST_RAIO}"""
         )
 
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     def test(test_color1, test_color2, expected):
         """
-        Test function to compare two colors and check if their contrast ratio 
+        Test function to compare two colors and check if their contrast ratio
         matches the expected value.
         """
         print(f"\ncomparing {test_color1} and {test_color2}")

@@ -3,7 +3,6 @@ Module to calculate text accessibility scores based on
 font sizes and weights as per WCAG guidelines.
 """
 import math
-import re
 from services.css_parser import parse_css
 from services.html_parser import parse_html, get_computed_style
 from utils.debug import debug_print
@@ -54,7 +53,7 @@ def score_text_accessibility(html, css):
             text_inaccessible_elements.append(text_element)
 
         debug_print(
-            f"""Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight}, 
+            f"""Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight},
             Is Accessible: {is_text_accessible(font_size, font_weight)}"""
         )
 
