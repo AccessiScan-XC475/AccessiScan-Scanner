@@ -84,18 +84,17 @@ def compute_font_size(text_elem_style, element_tag):
     if element_tag == "h3":
         # 1.17em * root_font_size
         return 1.17 * root_font_size
+    # Handle other cases (rem, em, and px)
+    if "rem" in font_size:
+        font_size_value = float(font_size.replace("rem", "")) * root_font_size
+    elif "em" in font_size:
+        font_size_value = float(font_size.replace("em", "")) * root_font_size
+    elif "px" in font_size:
+        font_size_value = float(font_size.replace("px", ""))
+    elif "pt" in font_size:
+        font_size_value = float(font_size.replace("pt", ""))
     else:
-        # Handle other cases (rem, em, and px)
-        if "rem" in font_size:
-            font_size_value = float(font_size.replace("rem", "")) * root_font_size
-        elif "em" in font_size:
-            font_size_value = float(font_size.replace("em", "")) * root_font_size
-        elif "px" in font_size:
-            font_size_value = float(font_size.replace("px", ""))
-        elif "pt" in font_size:
-            font_size_value = float(font_size.replace("pt", ""))
-        else:
-            font_size_value = float(font_size)
+        font_size_value = float(font_size)
     return font_size_value
 
 def is_text_accessible(font_size_value: float, font_weight: int) -> bool:
