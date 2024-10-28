@@ -8,7 +8,7 @@ from services.html_parser import parse_html, get_computed_style, has_direct_cont
 
 NORMAL_TEXT_CONTRAST_RAIO = 4.5
 OTHER_CONTRACT_RATIO = 3
-TAGS_TO_SKIP = ["html", "title", "head", "style", "script"]
+TAGS_TO_SKIP = ["html", "title", "head", "style", "script", "body"]
 
 
 def score_text_contrast(html_content, css_content):
@@ -19,6 +19,7 @@ def score_text_contrast(html_content, css_content):
     """
     num_elements = 0
     num_accessible = 0
+    inaccessible_elements = []
 
     soup = parse_html(html_content)
     styles = parse_css(css_content)
@@ -34,10 +35,12 @@ def score_text_contrast(html_content, css_content):
         num_elements += 1
         elem_style = get_computed_style(element, styles)
         debug_print(element, elem_style)
+        print(elem_style)
 
         # Get the text color and background color
         color = css_to_hex(elem_style.get("color", ""))
         background_color = css_to_hex(elem_style.get("background-color", ""))
+        print(color)
 
         # Convert colors to rgb values
         color_rgb = hex_to_rgb(color if color is not None else "#000000")
@@ -45,25 +48,27 @@ def score_text_contrast(html_content, css_content):
             background_color if background_color is not None else "#FFFFFF"
         )
 
-        # Calcualte the contrast ratio
+        # Calculate the contrast ratio
         ratio = contrast_ratio(color_rgb, bg_rgb)
         if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
             num_accessible += 1
+        else:
+            inaccessible_elements.append(element)
 
         # Debug print for each element's contrast details
-        debug_print(
+        print(
             f"Element: {element.name}, Text Color: {color}, "
-            f"Background Color: {background_color}, Contrast Ratio: {ratio:.2f}"
+            f"""Background Color: {background_color}, Contrast Ratio: {ratio:.2f},
+            Is Accessible: {ratio >= NORMAL_TEXT_CONTRAST_RAIO}"""
         )
 
     # Cannot divide by zero
     if num_elements == 0:
         return 100
 
-    score = (num_accessible / num_elements) * 100  # to percentage
-    trunc_score = math.floor(score * 10) / 10  # truncate to tenths
-    debug_print(num_accessible, num_elements, trunc_score)
-    return trunc_score
+    trunc_score = math.floor((num_accessible / num_elements) * 1000) / 10
+    print(num_accessible, num_elements, trunc_score) #debug print
+    return [trunc_score, inaccessible_elements]
 
 
 
@@ -72,7 +77,7 @@ if __name__ == "__main__":
 
     def test(test_color1, test_color2, expected):
         """
-        Test function to compare two colors and check if their contrast ratio 
+        Test function to compare two colors and check if their contrast ratio
         matches the expected value.
         """
         print(f"\ncomparing {test_color1} and {test_color2}")
