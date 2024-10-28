@@ -60,7 +60,8 @@ def score_text_contrast(html_content, css_content):
         # Debug print for each element's contrast details
         print(
             f"Element: {element.name}, Text Color: {color}, "
-            f"Background Color: {background_color}, Contrast Ratio: {ratio:.2f}, Is Accessible: {ratio >= NORMAL_TEXT_CONTRAST_RAIO}"
+            f"Background Color: {background_color}, Contrast Ratio: {ratio:.2f}, 
+            Is Accessible: {ratio >= NORMAL_TEXT_CONTRAST_RAIO}"
         ) #debug print
 
     # Cannot divide by zero

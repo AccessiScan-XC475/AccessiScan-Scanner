@@ -3,10 +3,8 @@ Module to calculate text accessibility scores based on
 font sizes and weights as per WCAG guidelines.
 """
 import math
-import re
 from services.css_parser import parse_css
 from services.html_parser import parse_html, get_computed_style
-from utils.debug import debug_print
 
 NORMAL_TEXT_SIZE_PX = 16
 LARGE_TEXT_SIZE_PX = 18
@@ -54,7 +52,8 @@ def score_text_accessibility(html, css):
             text_inaccessible_elements.append(text_element)
 
         print(
-            f"Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight}, Is Accessible: {is_text_accessible(font_size, font_weight)}"
+            f"Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight}, 
+            Is Accessible: {is_text_accessible(font_size, font_weight)}"
         )
 
     if text_num_elements == 0:
@@ -96,7 +95,6 @@ def compute_font_size(text_elem_style, element_tag):
             font_size_value = float(font_size.replace("pt", "")) 
         else:
             font_size_value = float(font_size)
-
     return font_size_value
 
 def is_text_accessible(font_size_value: float, font_weight: int) -> bool:
