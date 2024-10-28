@@ -54,8 +54,8 @@ def score_text_accessibility(html, css):
             text_inaccessible_elements.append(text_element)
 
         debug_print(
-            f"Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight}, 
-            Is Accessible: {is_text_accessible(font_size, font_weight)}"
+            f"""Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight}, 
+            Is Accessible: {is_text_accessible(font_size, font_weight)}"""
         )
 
     if text_num_elements == 0:
