@@ -19,7 +19,6 @@ def score_text_contrast(html_content, css_content):
     """
     num_elements = 0
     num_accessible = 0
-    accessible_elements = []
     inaccessible_elements = []
 
     soup = parse_html(html_content)
@@ -53,7 +52,6 @@ def score_text_contrast(html_content, css_content):
         ratio = contrast_ratio(color_rgb, bg_rgb)
         if ratio >= NORMAL_TEXT_CONTRAST_RAIO:
             num_accessible += 1
-            accessible_elements.append(element)
         else:
             inaccessible_elements.append(element)
 
@@ -68,10 +66,9 @@ def score_text_contrast(html_content, css_content):
     if num_elements == 0:
         return 100
 
-    score = (num_accessible / num_elements) * 100  # to percentage
-    trunc_score = math.floor(score * 10) / 10  # truncate to tenths
+    trunc_score = math.floor((num_accessible / num_elements) * 1000) / 10
     print(num_accessible, num_elements, trunc_score) #debug print
-    return [trunc_score, accessible_elements, inaccessible_elements]
+    return [trunc_score, inaccessible_elements]
 
 
 

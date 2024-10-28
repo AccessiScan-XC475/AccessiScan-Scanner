@@ -45,10 +45,9 @@ def scan():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    [score, accessible_elements, inaccessible_elements] = score_text_contrast(dom, css)
+    [score, inaccessible_elements] = score_text_contrast(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
-    print("Accessible elements:", accessible_elements)
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]

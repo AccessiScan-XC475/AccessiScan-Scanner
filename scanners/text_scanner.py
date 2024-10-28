@@ -12,7 +12,7 @@ LARGE_TEXT_SIZE_PX = 18
 BOLD_LARGE_TEXT_SIZE_PX = 14
 MIN_FONT_WEIGHT_BOLD = 700
 
-TAGS_TO_SKIP = ["html", "title", "head", "style", "script", 
+TAGS_TO_SKIP = ["html", "title", "head", "style", "script",
                 "div", "body", "header", "nav", "main"]
 
 def score_text_accessibility(html, css):
@@ -53,8 +53,8 @@ def score_text_accessibility(html, css):
             text_inaccessible_elements.append(text_element)
 
         debug_print(
-            f"""Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight: {font_weight},
-            Is Accessible: {is_text_accessible(font_size, font_weight)}"""
+            f"""Element: {text_element.name}, Computed Font Size: {font_size}, Font Weight:
+            {font_weight}, Is Accessible: {is_text_accessible(font_size, font_weight)}"""
         )
 
     if text_num_elements == 0:
@@ -78,10 +78,10 @@ def compute_font_size(text_elem_style, element_tag):
     if element_tag == "button":
         # 0.83em * root_font_size
         return 0.83 * root_font_size
-    elif element_tag == "h1":
+    if element_tag == "h1":
         # 2em * root_font_size
         return 2 * root_font_size
-    elif element_tag == "h3":
+    if element_tag == "h3":
         # 1.17em * root_font_size
         return 1.17 * root_font_size
     else:
@@ -93,7 +93,7 @@ def compute_font_size(text_elem_style, element_tag):
         elif "px" in font_size:
             font_size_value = float(font_size.replace("px", ""))
         elif "pt" in font_size:
-            font_size_value = float(font_size.replace("pt", "")) 
+            font_size_value = float(font_size.replace("pt", ""))
         else:
             font_size_value = float(font_size)
     return font_size_value
