@@ -58,11 +58,11 @@ def score_text_contrast(html_content, css_content):
             inaccessible_elements.append(element)
 
         # Debug print for each element's contrast details
-        print(
+        debug_print(
             f"Element: {element.name}, Text Color: {color}, "
             f"Background Color: {background_color}, Contrast Ratio: {ratio:.2f}, 
             Is Accessible: {ratio >= NORMAL_TEXT_CONTRAST_RAIO}"
-        ) #debug print
+        ) 
 
     # Cannot divide by zero
     if num_elements == 0:
