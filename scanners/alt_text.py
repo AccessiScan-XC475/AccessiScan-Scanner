@@ -4,9 +4,10 @@ Module to check image accessibility based on the presence of alt text.
 
 import sys
 
-# configure python path to root of project
-path = "/".join(sys.path[0].split("/")[:-1])
-sys.path[0] = path
+if __name__ == "__main__":
+    # configure python path to root of project
+    path = "/".join(sys.path[0].split("/")[:-1])
+    sys.path[0] = path
 
 from services.html_parser import parse_html
 from utils.debug import debug_print
