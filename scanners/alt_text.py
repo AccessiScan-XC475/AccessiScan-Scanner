@@ -1,8 +1,16 @@
 """
 Module to check image accessibility based on the presence of alt text.
 """
+
+import sys
+
+# configure python path to root of project
+path = "/".join(sys.path[0].split("/")[:-1])
+sys.path[0] = path
+
 from services.html_parser import parse_html
 from utils.debug import debug_print
+
 
 def score_image_accessibility(html):
     """
@@ -15,12 +23,12 @@ def score_image_accessibility(html):
 
     soup = parse_html(html)
 
-    for img_element in soup.find_all('img'):
+    for img_element in soup.find_all("img"):
         total_images += 1
-        
+
         # Check for the presence of alt text
-        alt_text = img_element.get('alt', '').strip()
-        
+        alt_text = img_element.get("alt", "").strip()
+
         if alt_text:  # If alt text is present
             images_with_alt += 1
         else:  # If alt text is missing
@@ -36,7 +44,7 @@ def score_image_accessibility(html):
     return {
         "images_with_alt": images_with_alt,
         "total_images": total_images,
-        "score": (images_with_alt / total_images) 
+        "score": (images_with_alt / total_images),
     }
 
 
@@ -58,5 +66,7 @@ if __name__ == "__main__":
     if isinstance(image_accessibility_score, str):
         print(image_accessibility_score)
     else:
-        print(f"Images with Alt Text: {image_accessibility_score['images_with_alt']} / Total Images: {image_accessibility_score['total_images']}")
+        print(
+            f"Images with Alt Text: {image_accessibility_score['images_with_alt']} / Total Images: {image_accessibility_score['total_images']}"
+        )
         print(f"Image Accessibility Score: {image_accessibility_score['score']}")
