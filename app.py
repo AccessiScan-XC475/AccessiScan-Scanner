@@ -8,6 +8,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
+from scanners.alt_text import score_image_accessibility
 
 app = Flask(__name__)
 cors = CORS(
@@ -76,6 +77,27 @@ def scan_large_text():
 
     # Return the score and the inaccessible elements
     return {"score": score, "inaccessible_elements": text_inaccessible_html}
+
+@app.route("/api/scan-images", methods=["POST"])
+def scan_images():
+    """
+    Endpoint to scan DOM for image accessibility.
+    Returns the number of images with alt text, total number of images,
+    and the accessibility score.
+    """
+    data = request.get_json()
+    dom = data.get("dom", "")
+
+    image_accessibility_score = score_image_accessibility(dom)
+
+    if isinstance(image_accessibility_score, str):
+        return {"message": image_accessibility_score}
+
+    return {
+        "images_with_alt": image_accessibility_score['images_with_alt'],
+        "total_images": image_accessibility_score['total_images'],
+        "score": image_accessibility_score['score']  
+    }
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)
