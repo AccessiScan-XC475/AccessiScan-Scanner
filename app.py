@@ -4,6 +4,8 @@ It includes endpoints to assess text color contrast and large text accessibility
 in provided HTML and CSS content. The API serves as a backend for scanning web content
 to ensure accessibility standards are met.
 """
+
+import math
 from flask import Flask, request
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
@@ -13,7 +15,7 @@ from scanners.alt_text import score_image_accessibility
 app = Flask(__name__)
 cors = CORS(
     app, resources={r"/*": {"origins": "*"}}
-)# CHANGE THIS AFTER DOMAINS HAVE BEEN ASSIGNED
+)  # CHANGE THIS AFTER DOMAINS HAVE BEEN ASSIGNED
 
 
 @app.route("/")
@@ -67,7 +69,9 @@ def scan_large_text():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    [score, accessible_elements, inaccessible_elements] = score_text_accessibility(dom, css)
+    [score, accessible_elements, inaccessible_elements] = score_text_accessibility(
+        dom, css
+    )
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
     print("Accessible elements:", accessible_elements)
@@ -77,6 +81,7 @@ def scan_large_text():
 
     # Return the score and the inaccessible elements
     return {"score": score, "inaccessible_elements": text_inaccessible_html}
+
 
 @app.route("/api/scan-images", methods=["POST"])
 def scan_images():
@@ -94,13 +99,17 @@ def scan_images():
 
     # Ensure image_accessibility_score is a dictionary
     if isinstance(image_accessibility_score, str):
-        return {"error": image_accessibility_score}  # Handle case where there are no images
+        return {
+            "error": image_accessibility_score
+        }  # Handle case where there are no images
 
-    total_images = int(image_accessibility_score['total_images'])
-    images_with_alt = int(image_accessibility_score['images_with_alt'])
+    total_images = int(image_accessibility_score["total_images"])
+    images_with_alt = int(image_accessibility_score["images_with_alt"])
 
     # Calculate the score as a percentage
-    image_accessibility_score_percentage = int(images_with_alt) / int(total_images) 
+    image_accessibility_score_percentage = (
+        math.floor((images_with_alt / total_images) * 1000) / 10
+    )
 
     # Print debug information
     print("Score:", image_accessibility_score_percentage)
@@ -109,8 +118,9 @@ def scan_images():
     return {
         "score": image_accessibility_score_percentage,
         "images_with_alt": images_with_alt,
-        "total_images": total_images
+        "total_images": total_images,
     }
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)
