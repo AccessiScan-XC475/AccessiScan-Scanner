@@ -29,7 +29,7 @@ def home():
     return "please visit: http://localhost:3000"
 
 
-@app.route("/api/health", methods=["GET"])
+@app.route("/health", methods=["GET"])
 def health():
     """
     Health check endpoint to ensure api is working.
@@ -38,7 +38,7 @@ def health():
     return "OK"
 
 
-@app.route("/api/scan-contrasting-colors", methods=["POST"])
+@app.route("/scan-contrasting-colors", methods=["POST"])
 def scan():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
@@ -59,7 +59,7 @@ def scan():
     return {"score": score, "inaccessible_elements": inaccessible_html}
 
 
-@app.route("/api/scan-large-text", methods=["POST"])
+@app.route("/scan-large-text", methods=["POST"])
 def scan_large_text():
     """
     Endpoint to scan large text in DOM and CSS for accessibility.
@@ -83,7 +83,7 @@ def scan_large_text():
     return {"score": score, "inaccessible_elements": text_inaccessible_html}
 
 
-@app.route("/api/scan-images", methods=["POST"])
+@app.route("/scan-images", methods=["POST"])
 def scan_images():
     """
     Endpoint to scan DOM and CSS for image accessibility.
