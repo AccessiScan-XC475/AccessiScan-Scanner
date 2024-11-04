@@ -81,22 +81,35 @@ def scan_large_text():
 @app.route("/api/scan-images", methods=["POST"])
 def scan_images():
     """
-    Endpoint to scan DOM for image accessibility.
-    Returns the number of images with alt text, total number of images,
-    and the accessibility score.
+    Endpoint to scan DOM and CSS for image accessibility.
+    Returns the accessibility score, number of images with alt text,
+    total number of images, and list of inaccessible elements.
     """
     data = request.get_json()
     dom = data.get("dom", "")
+    css = data.get("css", "")
 
-    image_accessibility_score = score_image_accessibility(dom)
+    # Get image accessibility score and element lists
+    image_accessibility_score = score_image_accessibility(dom, css)
 
+    # Ensure image_accessibility_score is a dictionary
     if isinstance(image_accessibility_score, str):
-        return {"message": image_accessibility_score}
+        return {"error": image_accessibility_score}  # Handle case where there are no images
 
+    total_images = int(image_accessibility_score['total_images'])
+    images_with_alt = int(image_accessibility_score['images_with_alt'])
+
+    # Calculate the score as a percentage
+    image_accessibility_score_percentage = int(images_with_alt) / int(total_images) 
+
+    # Print debug information
+    print("Score:", image_accessibility_score_percentage)
+
+    # Return the score, total images, and inaccessible elements
     return {
-        "images_with_alt": image_accessibility_score['images_with_alt'],
-        "total_images": image_accessibility_score['total_images'],
-        "score": image_accessibility_score['score']  
+        "score": image_accessibility_score_percentage,
+        "images_with_alt": images_with_alt,
+        "total_images": total_images
     }
 
 if __name__ == "__main__":
