@@ -105,26 +105,27 @@ def scan_images():
     # Debugging: Print out the structure of image_accessibility_score
     print("Image accessibility score:", result)
 
-    # Check if the returned result is a dictionary with the necessary keys
+    # Initialize default values for total images and images with alt text
+    total_images = 0
+    images_with_alt = 0
+
+    # Check if the result is a dictionary and contains the necessary keys
     if isinstance(result, dict):
         total_images = result.get('total_images', 0)
         images_with_alt = result.get('images_with_alt', 0)
 
-        # Print debug information
-        print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
+    # Print debug information
+    print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
 
-        # Return the formatted score and image counts
-        return {
-            "score": (
-                f"Number of Images with Alt Text: {images_with_alt}<br>"
-                f"Total Number of Images on the Page: {total_images}"
-            ),
-            "images_with_alt": images_with_alt,
-            "total_images": total_images
-        }
-    
-    # Ensure that the error case also returns a consistent dictionary
-    return {"error": "Invalid result from image accessibility scan"}
+    # Return the formatted score and image counts, ensuring they are set to 0 if no images are found
+    return {
+        "score": (
+            f"Number of Images with Alt Text: {images_with_alt}<br>"
+            f"Total Number of Images on the Page: {total_images}"
+        ),
+        "images_with_alt": images_with_alt,
+        "total_images": total_images
+    }
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)
