@@ -115,12 +115,14 @@ def scan_images():
 
         # Return the formatted score and image counts
         return {
-            "score": f"Number of Images with Alt Text: {images_with_alt}<br>Total Number of Images on the Page: {total_images}",
+            "score": (
+                f"Number of Images with Alt Text: {images_with_alt}<br>"
+                f"Total Number of Images on the Page: {total_images}"
+            ),
             "images_with_alt": images_with_alt,
             "total_images": total_images
         }
-    else:
-        # If the result isn't a dictionary, return an error message
+    if not isinstance(result, dict):
         return {"error": "Invalid result from image accessibility scan"}
 
 if __name__ == "__main__":

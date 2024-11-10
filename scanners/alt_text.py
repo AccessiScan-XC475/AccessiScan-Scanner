@@ -1,19 +1,14 @@
 """
 Module to check image accessibility based on the presence of alt text in both HTML and CSS.
 """
-
-import sys
-from bs4 import BeautifulSoup
-import re
-
-if __name__ == "__main__":
-    # configure python path to root of project
-    path = "/".join(sys.path[0].split("/")[:-1])
-    sys.path[0] = path
-
 from services.html_parser import parse_html
 from utils.debug import debug_print
-
+import sys
+import re
+if __name__ == "__main__":
+    # configure python path to root of project
+    PATH = "/".join(sys.path[0].split("/")[:-1])
+    sys.PATH[0] = PATH
 
 def score_image_accessibility(html, css=None):
     """
@@ -31,7 +26,7 @@ def score_image_accessibility(html, css=None):
     css_alt_patterns = []
     if css:
         css_alt_patterns = re.findall(r'img\[alt[^\]]*="([^"]*)"\]', css)
-    
+
     # Analyze each image element in the HTML
     for img_element in soup.find_all("img"):
         total_images += 1
@@ -61,32 +56,3 @@ def score_image_accessibility(html, css=None):
         "total_images": total_images,
         "score": (images_with_alt / total_images)
     }
-
-
-if __name__ == "__main__":
-    # Example usage
-    SAMPLE_HTML = """
-    <html>
-    <head></head>
-    <body>
-        <img src="image1.jpg" alt="A descriptive text for image 1.">
-        <img src="image2.jpg" alt="">
-        <img src="image3.jpg">
-        <img src="image4.jpg" alt="A descriptive text for image 4.">
-    </body>
-    </html>
-    """
-    SAMPLE_CSS = """
-    img[alt="Image from CSS"] {
-        content: "Alternative text from CSS";
-    }
-    """
-
-    image_accessibility_score = score_image_accessibility(SAMPLE_HTML, SAMPLE_CSS)
-    if isinstance(image_accessibility_score, str):
-        print(image_accessibility_score)
-    else:
-        print(
-            f"Images with Alt Text: {image_accessibility_score['images_with_alt']} / Total Images: {image_accessibility_score['total_images']}"
-        )
-        print(f"Image Accessibility Score: {image_accessibility_score['score']}")
