@@ -5,7 +5,6 @@ in provided HTML and CSS content. The API serves as a backend for scanning web c
 to ensure accessibility standards are met.
 """
 
-import math
 from flask import Flask, request
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
@@ -56,7 +55,10 @@ def scan():
     inaccessible_html = [str(element) for element in inaccessible_elements]
 
     # Return the score and the inaccessible elements
-    return {"score": score, "inaccessible_elements": inaccessible_html}
+    return {
+        "score": f"{score}/100",
+        "inaccessible_elements": inaccessible_html
+    }
 
 
 @app.route("/api/scan-large-text", methods=["POST"])
@@ -80,47 +82,46 @@ def scan_large_text():
     text_inaccessible_html = [str(element) for element in inaccessible_elements]
 
     # Return the score and the inaccessible elements
-    return {"score": score, "inaccessible_elements": text_inaccessible_html}
+    return {
+        "score": f"{score}/100",
+        "inaccessible_elements": text_inaccessible_html
+    }
 
 
 @app.route("/api/scan-images", methods=["POST"])
 def scan_images():
     """
     Endpoint to scan DOM and CSS for image accessibility.
-    Returns the accessibility score, number of images with alt text,
-    total number of images, and list of inaccessible elements.
+    Returns the number of images with alt text, total number of images,
+    and the formatted score.
     """
     data = request.get_json()
     dom = data.get("dom", "")
     css = data.get("css", "")
 
     # Get image accessibility score and element lists
-    image_accessibility_score = score_image_accessibility(dom, css)
+    result = score_image_accessibility(dom, css)
 
-    # Ensure image_accessibility_score is a dictionary
-    if isinstance(image_accessibility_score, str):
+    # Debugging: Print out the structure of image_accessibility_score
+    print("Image accessibility score:", result)
+
+    # Check if the returned result is a dictionary with the necessary keys
+    if isinstance(result, dict):
+        total_images = result.get('total_images', 0)
+        images_with_alt = result.get('images_with_alt', 0)
+
+        # Print debug information
+        print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
+
+        # Return the formatted score and image counts
         return {
-            "error": image_accessibility_score
-        }  # Handle case where there are no images
-
-    total_images = int(image_accessibility_score["total_images"])
-    images_with_alt = int(image_accessibility_score["images_with_alt"])
-
-    # Calculate the score as a percentage
-    image_accessibility_score_percentage = (
-        math.floor((images_with_alt / total_images) * 1000) / 10
-    )
-
-    # Print debug information
-    print("Score:", image_accessibility_score_percentage)
-
-    # Return the score, total images, and inaccessible elements
-    return {
-        "score": image_accessibility_score_percentage,
-        "images_with_alt": images_with_alt,
-        "total_images": total_images,
-    }
-
+            "score": f"Number of Images with Alt Text: {images_with_alt}<br>Total Number of Images on the Page: {total_images}",
+            "images_with_alt": images_with_alt,
+            "total_images": total_images
+        }
+    else:
+        # If the result isn't a dictionary, return an error message
+        return {"error": "Invalid result from image accessibility scan"}
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)
