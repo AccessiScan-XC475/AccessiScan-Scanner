@@ -122,8 +122,9 @@ def scan_images():
             "images_with_alt": images_with_alt,
             "total_images": total_images
         }
-    if not isinstance(result, dict):
-        return {"error": "Invalid result from image accessibility scan"}
+    
+    # Ensure that the error case also returns a consistent dictionary
+    return {"error": "Invalid result from image accessibility scan"}
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=4200)

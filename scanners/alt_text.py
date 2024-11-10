@@ -1,14 +1,16 @@
 """
 Module to check image accessibility based on the presence of alt text in both HTML and CSS.
 """
-from services.html_parser import parse_html
-from utils.debug import debug_print
+
 import sys
 import re
+from services.html_parser import parse_html
+from utils.debug import debug_print
+
 if __name__ == "__main__":
-    # configure python path to root of project
+    # Configure python path to root of project
     PATH = "/".join(sys.path[0].split("/")[:-1])
-    sys.PATH[0] = PATH
+    sys.path[0] = PATH  # Fixed sys.PATH to sys.path
 
 def score_image_accessibility(html, css=None):
     """
@@ -45,8 +47,10 @@ def score_image_accessibility(html, css=None):
             images_without_alt.append(img_element)
 
         debug_print(
-            f"Image: {img_element.get('src', 'No src')}, Alt Text: {'Present' if alt_text else 'Missing'}"
+            f"Image: {img_element.get('src', 'No src')}, "
+            f"Alt Text: {'Present' if alt_text else 'Missing'}"
         )
+
 
     if total_images == 0:
         return "No images on the page"
