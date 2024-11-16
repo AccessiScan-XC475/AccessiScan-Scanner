@@ -124,13 +124,12 @@ def scan_images():
 
     # Return the formatted score and image counts, ensuring they are set to 0 if no images are found
     return {
-        "score": (
-            f"Number of Images with Alt Text: {images_with_alt}<br>"
-            f"Total Number of Images on the Page: {total_images}<br>"
-            f"Score: {score}"
+        "details": (
+            f"There are {images_with_alt} image(s) with Alt Text out of {total_images} total image(s)."
         ),
         "images_with_alt": images_with_alt,
-        "total_images": total_images
+        "total_images": total_images,
+        "score": score
     }
 
 if __name__ == "__main__":
