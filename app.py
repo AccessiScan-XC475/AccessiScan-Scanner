@@ -56,7 +56,7 @@ def scan():
 
     # Return the score and the inaccessible elements
     return {
-        "score": f"{score}/100",
+        "score": f"{score}",
         "inaccessible_elements": inaccessible_html
     }
 
@@ -83,7 +83,7 @@ def scan_large_text():
 
     # Return the score and the inaccessible elements
     return {
-        "score": f"{score}/100",
+        "score": {score},
         "inaccessible_elements": text_inaccessible_html
     }
 
@@ -113,6 +113,11 @@ def scan_images():
     if isinstance(result, dict):
         total_images = result.get('total_images', 0)
         images_with_alt = result.get('images_with_alt', 0)
+        score = 0
+        if total_images == 0:
+            score = 100
+        else:
+            score = (images_with_alt/total_images)*100
 
     # Print debug information
     print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
@@ -121,7 +126,8 @@ def scan_images():
     return {
         "score": (
             f"Number of Images with Alt Text: {images_with_alt}<br>"
-            f"Total Number of Images on the Page: {total_images}"
+            f"Total Number of Images on the Page: {total_images}<br>"
+            f"Score: {score}"
         ),
         "images_with_alt": images_with_alt,
         "total_images": total_images
