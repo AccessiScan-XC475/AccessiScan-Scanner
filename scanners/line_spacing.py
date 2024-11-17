@@ -1,9 +1,12 @@
-"""Module to evaluate line spacing for accessibility."""
+"""
+Module to evaluate line spacing for accessibility.
+"""
 import math
 from utils.debug import debug_print
-from services.css_parser import parse_css
-from services.html_parser import parse_html, get_computed_style, has_direct_contents
 from utils.text_computations import compute_font_size, compute_line_height
+from utils.common_utils import parse_and_iterate_elements  # Import shared utility function
+from services.html_parser import get_computed_style
+from utils.common_utils import parse_and_iterate_elements  # Import shared utility function
 
 BODY_TEXT_RATIO = 1.5
 HEADER_TEXT_RATIO = 1.2
@@ -16,22 +19,14 @@ def score_line_spacing(html_content, css_content):
     Returns a score based on the percentage of text elements with
     adequate line spacing according to WCAG standards.
     """
-    num_elements = 0
-    num_accessible = 0
-    inaccessible_elements = []
-
-    soup = parse_html(html_content)
-    styles = parse_css(css_content)
-
-    for element in soup.find_all(True):
-        if element.hidden or element.name in TAGS_TO_SKIP or not has_direct_contents(element):
-            continue
-
-        num_elements += 1
+    def handle_element(element, styles):
+        """
+        Handle each element by evaluating its line spacing accessibility.
+        """
         elem_style = get_computed_style(element, styles)
         debug_print(element, elem_style)
 
-        # Use imported functions
+        # Compute font size and line height
         font_size_val = compute_font_size(elem_style, element.name)
         line_height_val = compute_line_height(elem_style, font_size_val)
 
@@ -40,16 +35,16 @@ def score_line_spacing(html_content, css_content):
         line_spacing_ratio = line_height_val / font_size_val
         is_accessible = line_spacing_ratio >= required_ratio
 
-        # Update accessibility counts
-        if is_accessible:
-            num_accessible += 1
-        else:
-            inaccessible_elements.append(element)
-
         # Debug print for element details
         print(f"Element: {element.name}, Font Size: {font_size_val}px, "
               f"Line Height: {line_height_val}px, Line Spacing Ratio: {line_spacing_ratio:.2f}, "
               f"Is Accessible: {is_accessible}")
+
+        return is_accessible
+
+    num_elements, num_accessible, inaccessible_elements = parse_and_iterate_elements(
+        html_content, css_content, TAGS_TO_SKIP, handle_element
+    )
 
     if num_elements == 0:
         return 100

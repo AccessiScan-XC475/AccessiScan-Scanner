@@ -1,6 +1,7 @@
 def compute_font_size(text_elem_style, element_tag, root_font_size=16):
     """
-    Compute font size accurately, handling rem, em, and px.
+    This module contains utility functions for text-related computations, 
+    including font size calculation and parsing styles for accessibility checks.
     """
     font_size = text_elem_style.get("font-size", "16px")
 
