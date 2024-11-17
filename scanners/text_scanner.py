@@ -5,6 +5,7 @@ font sizes and weights as per WCAG guidelines.
 import sys
 import math
 from utils.debug import debug_print
+from utils.text_computations import compute_font_size
 from services.css_parser import parse_css
 from services.html_parser import parse_html, get_computed_style, has_direct_contents
 
@@ -32,37 +33,36 @@ def score_text_accessibility(html_content, css_content):
     num_accessible = 0
     inaccessible_elements = []
 
+    # Parse the HTML and CSS content
     soup = parse_html(html_content)
     styles = parse_css(css_content)
 
+    # Iterate over all elements in the HTML content
     for element in soup.find_all(True):
-        if (
-            element.hidden
-            or element.name in TAGS_TO_SKIP
-            or not has_direct_contents(element)
-        ):
-            continue
+        if element.hidden or element.name in TAGS_TO_SKIP or not has_direct_contents(element):
+            continue  # Skip elements that are hidden or in the skip list
+
         num_elements += 1
         elem_style = get_computed_style(element, styles)
         debug_print(element, elem_style)
 
-        # Compute the font size using the helper function
+        # Compute the font size using the imported utility function
         font_size_val = compute_font_size(elem_style, element.name)
 
-        # Check for bold styling
+        # Determine the font weight and handle any invalid values gracefully
         font_weight = elem_style.get("font-weight", "400")
         try:
             font_weight = int(font_weight)
         except ValueError:
-            font_weight = 400  # Default font weight
+            font_weight = 400  # Default font weight if not a valid integer
 
-        # Determine accessibility criteria
+        # Determine if the text is accessible based on font size and weight criteria
         if font_size_val >= LARGE_TEXT_SIZE_PX:
             is_accessible = True
         elif font_size_val >= NORMAL_TEXT_SIZE_PX and font_weight >= NORM_FONT_WEIGHT:
-            is_accessible = font_size_val >= NORMAL_TEXT_SIZE_PX
+            is_accessible = True
         elif font_size_val >= BOLD_LARGE_TEXT_SIZE_PX and font_weight >= MIN_FONT_WEIGHT_BOLD:
-            is_accessible = font_size_val >= BOLD_LARGE_TEXT_SIZE_PX
+            is_accessible = True
         else:
             is_accessible = False
 
@@ -77,58 +77,9 @@ def score_text_accessibility(html_content, css_content):
             f"Font Weight: {font_weight}, Is Accessible: {is_accessible}"
         )
 
+    # Calculate and return the accessibility score
     if num_elements == 0:
-        return 100
+        return 100  # Default score if no elements are found
 
     score = math.floor((num_accessible / num_elements) * 1000) / 10
     return [score, inaccessible_elements]
-
-def compute_font_size(text_elem_style, element_tag, root_font_size=16):
-    """
-    Compute font size accurately, handling rem, em, px, and specific HTML elements.
-    """
-    font_size = text_elem_style.get("font-size", "16px")
-
-    # Handle specific elements with default em sizes
-    default_sizes = {
-        "button": 0.83 * root_font_size,
-        "h1": 2 * root_font_size,
-        "h3": 1.17 * root_font_size
-    }
-    if element_tag in default_sizes:
-        return default_sizes[element_tag]
-
-    # Handle font-size cases (rem, em, px, pt)
-    units = [("rem", root_font_size), ("em", root_font_size), ("px", 1), ("pt", 1.33)]
-    for unit, multiplier in units:
-        if unit in font_size:
-            return float(font_size.replace(unit, "")) * multiplier
-
-    # Default case if no recognizable unit is found
-    return float(font_size)
-
-if __name__ == "__main__":
-    # Example usage
-    SAMPLE_HTML = """
-    <html>
-    <head><style>p { font-size: 20px; }</style></head>
-    <body>
-        <p class="normal">This is a paragraph.</p>
-        <h1>This is a heading</h1>
-        <p style="font-size: 12px;">Small text here.</p>
-    </body>
-    </html>
-    """
-    SAMPLE_CSS = """
-    p {
-        font-size: 16px;
-        font-weight: 400;
-    }
-    h1 {
-        font-size: 32px;
-        font-weight: 700;
-    }
-    """
-
-    text_accessibility_score = score_text_accessibility(SAMPLE_HTML, SAMPLE_CSS)
-    print(f"Text Accessibility Score: {text_accessibility_score}%")

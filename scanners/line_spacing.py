@@ -3,7 +3,7 @@ import math
 from utils.debug import debug_print
 from services.css_parser import parse_css
 from services.html_parser import parse_html, get_computed_style, has_direct_contents
-from scanners.text_scanner import compute_font_size
+from utils.text_computations import compute_font_size, compute_line_height
 
 BODY_TEXT_RATIO = 1.5
 HEADER_TEXT_RATIO = 1.2
@@ -31,7 +31,7 @@ def score_line_spacing(html_content, css_content):
         elem_style = get_computed_style(element, styles)
         debug_print(element, elem_style)
 
-        # Compute font size and line height
+        # Use imported functions
         font_size_val = compute_font_size(elem_style, element.name)
         line_height_val = compute_line_height(elem_style, font_size_val)
 
@@ -56,15 +56,3 @@ def score_line_spacing(html_content, css_content):
 
     trunc_score = math.floor((num_accessible / num_elements) * 1000) / 10
     return [trunc_score, inaccessible_elements]
-
-def compute_line_height(elem_style, font_size_val):
-    """
-    Compute line height based on element style or default ratio.
-    """
-    line_height = elem_style.get("line-height", "normal")
-    if line_height == "normal":
-        return 1.5 * font_size_val
-    try:
-        return float(line_height) * font_size_val
-    except ValueError:
-        return compute_font_size({"font-size": line_height}, "")
