@@ -37,7 +37,6 @@ def score_text_accessibility(html_content, css_content):
         elem_style = get_computed_style(element, styles)
         font_size_val = compute_font_size(elem_style, element.name)
         font_weight = elem_style.get("font-weight", "400")
-        
         try:
             font_weight = int(font_weight)
         except ValueError:

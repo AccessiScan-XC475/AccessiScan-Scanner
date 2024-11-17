@@ -9,7 +9,7 @@ from services.html_parser import parse_html, has_direct_contents
 
 def parse_and_iterate_elements(html, css, tags_to_skip, element_handler):
     """
-    Parses HTML and CSS content, iterates over elements, and calls the handler function for each element.
+    Parses HTML and CSS content.
     """
     num_elements = 0
     num_accessible = 0

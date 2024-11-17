@@ -1,3 +1,6 @@
+"""
+Calculates font size and line height.
+"""
 def compute_font_size(text_elem_style, element_tag, root_font_size=16):
     """
     This module contains utility functions for text-related computations, 
