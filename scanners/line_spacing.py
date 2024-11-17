@@ -1,7 +1,6 @@
 """
 Module to evaluate line spacing for accessibility.
 """
-import math
 from utils.debug import debug_print
 from utils.text_computations import compute_font_size, compute_line_height
 from utils.common_utils import parse_and_iterate_elements, calculate_score
