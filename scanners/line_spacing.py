@@ -6,7 +6,6 @@ from utils.debug import debug_print
 from utils.text_computations import compute_font_size, compute_line_height
 from utils.common_utils import parse_and_iterate_elements  # Import shared utility function
 from services.html_parser import get_computed_style
-from utils.common_utils import parse_and_iterate_elements  # Import shared utility function
 
 BODY_TEXT_RATIO = 1.5
 HEADER_TEXT_RATIO = 1.2

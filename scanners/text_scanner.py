@@ -24,10 +24,20 @@ TAGS_TO_SKIP = ["html", "title", "head", "style", "script",
                 "div", "body", "header", "nav", "main"]
 
 def score_text_accessibility(html_content, css_content):
+    """
+    Scores the accessibility of text elements based on font size and weight.
+    Uses WCAG criteria to determine if text elements are accessible for
+    users with visual impairments.
+    """
     def handle_element(element, styles):
+        """
+        Evaluates a single HTML element for text accessibility based on
+        font size and weight criteria defined by WCAG guidelines.
+        """
         elem_style = get_computed_style(element, styles)
         font_size_val = compute_font_size(elem_style, element.name)
         font_weight = elem_style.get("font-weight", "400")
+        
         try:
             font_weight = int(font_weight)
         except ValueError:
@@ -36,9 +46,9 @@ def score_text_accessibility(html_content, css_content):
         # Accessibility logic for font size and weight
         if font_size_val >= LARGE_TEXT_SIZE_PX:
             return True
-        elif font_size_val >= NORMAL_TEXT_SIZE_PX and font_weight >= NORM_FONT_WEIGHT:
+        if font_size_val >= NORMAL_TEXT_SIZE_PX and font_weight >= NORM_FONT_WEIGHT:
             return True
-        elif font_size_val >= BOLD_LARGE_TEXT_SIZE_PX and font_weight >= MIN_FONT_WEIGHT_BOLD:
+        if font_size_val >= BOLD_LARGE_TEXT_SIZE_PX and font_weight >= MIN_FONT_WEIGHT_BOLD:
             return True
         return False
 
@@ -48,5 +58,6 @@ def score_text_accessibility(html_content, css_content):
 
     if num_elements == 0:
         return 100  # Default score if no elements are found
+
     score = math.floor((num_accessible / num_elements) * 1000) / 10
     return [score, inaccessible_elements]
