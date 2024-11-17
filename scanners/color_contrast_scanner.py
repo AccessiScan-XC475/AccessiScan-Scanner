@@ -1,8 +1,9 @@
-import math
-import itertools
+"""
+Calculates color contrast ratio.
+"""
 from utils.contrast_utils import contrast_ratio, hex_to_rgb, css_to_hex
 from utils.debug import debug_print
-from utils.common_utils import parse_and_iterate_elements  # Use the shared function
+from utils.common_utils import parse_and_iterate_elements, calculate_score
 from services.html_parser import get_computed_style
 
 NORMAL_TEXT_CONTRAST_RATIO = 4.5
@@ -41,8 +42,4 @@ def score_text_contrast(html_content, css_content):
         html_content, css_content, TAGS_TO_SKIP, handle_element
     )
 
-    if num_elements == 0:
-        return 100  # Default score if no elements are found
-
-    trunc_score = math.floor((num_accessible / num_elements) * 1000) / 10
-    return [trunc_score, inaccessible_elements]
+    return calculate_score(num_elements, num_accessible, inaccessible_elements)

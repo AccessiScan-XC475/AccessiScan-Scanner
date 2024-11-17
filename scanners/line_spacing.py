@@ -4,7 +4,7 @@ Module to evaluate line spacing for accessibility.
 import math
 from utils.debug import debug_print
 from utils.text_computations import compute_font_size, compute_line_height
-from utils.common_utils import parse_and_iterate_elements  # Use the shared function
+from utils.common_utils import parse_and_iterate_elements, calculate_score
 from services.html_parser import get_computed_style
 
 BODY_TEXT_RATIO = 1.5
@@ -45,8 +45,4 @@ def score_line_spacing(html_content, css_content):
         html_content, css_content, TAGS_TO_SKIP, handle_element
     )
 
-    if num_elements == 0:
-        return 100
-
-    trunc_score = math.floor((num_accessible / num_elements) * 1000) / 10
-    return [trunc_score, inaccessible_elements]
+    return calculate_score(num_elements, num_accessible, inaccessible_elements)
