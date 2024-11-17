@@ -10,6 +10,8 @@ from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
+from scanners.line_spacing import score_line_spacing  # Import the new module
+
 
 app = Flask(__name__)
 cors = CORS(
@@ -56,7 +58,7 @@ def scan():
 
     # Return the score and the inaccessible elements
     return {
-        "score": f"{score}/100",
+        "score": f"{score}/100.0",
         "inaccessible_elements": inaccessible_html
     }
 
@@ -71,19 +73,16 @@ def scan_large_text():
     dom = data.get("dom", "")
     css = data.get("css", "")
 
-    [score, accessible_elements, inaccessible_elements] = score_text_accessibility(
-        dom, css
-    )
+    [score, inaccessible_elements] = score_text_accessibility(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
-    print("Accessible elements:", accessible_elements)
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     text_inaccessible_html = [str(element) for element in inaccessible_elements]
 
     # Return the score and the inaccessible elements
     return {
-        "score": f"{score}/100",
+        "score": f"{score}/100.0",
         "inaccessible_elements": text_inaccessible_html
     }
 
@@ -125,6 +124,29 @@ def scan_images():
         ),
         "images_with_alt": images_with_alt,
         "total_images": total_images
+    }
+
+@app.route("/api/scan-line-spacing", methods=["POST"])
+def scan_line_spacing():
+    """
+    Endpoint to scan DOM and CSS for line spacing accessibility.
+    Returns a score based on the percentage of text elements with sufficient line spacing.
+    """
+    data = request.get_json()
+    dom = data.get("dom", "")
+    css = data.get("css", "")
+
+    [score, inaccessible_elements] = score_line_spacing(dom, css)
+    print("score", score)
+    print("Inaccessible elements:", inaccessible_elements)
+
+    # Convert the inaccessible elements into string representations (e.g., HTML)
+    inaccessible_html = [str(element) for element in inaccessible_elements]
+
+    # Return the score and the inaccessible elements
+    return {
+        "score": f"{score}/100.0",
+        "inaccessible_elements": inaccessible_html
     }
 
 if __name__ == "__main__":
