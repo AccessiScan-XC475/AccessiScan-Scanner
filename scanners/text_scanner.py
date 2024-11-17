@@ -85,30 +85,27 @@ def score_text_accessibility(html_content, css_content):
 
 def compute_font_size(text_elem_style, element_tag, root_font_size=16):
     """
-    Compute font size accurately, handling rem, em, and px.
+    Compute font size accurately, handling rem, em, px, and specific HTML elements.
     """
     font_size = text_elem_style.get("font-size", "16px")
 
     # Handle specific elements with default em sizes
-    if element_tag == "button":
-        return 0.83 * root_font_size
-    if element_tag == "h1":
-        return 2 * root_font_size
-    if element_tag == "h3":
-        return 1.17 * root_font_size
+    default_sizes = {
+        "button": 0.83 * root_font_size,
+        "h1": 2 * root_font_size,
+        "h3": 1.17 * root_font_size
+    }
+    if element_tag in default_sizes:
+        return default_sizes[element_tag]
 
-    # Handle other cases (rem, em, and px)
-    if "rem" in font_size:
-        return float(font_size.replace("rem", "")) * root_font_size
-    elif "em" in font_size:
-        return float(font_size.replace("em", "")) * root_font_size
-    elif "px" in font_size:
-        return float(font_size.replace("px", ""))
-    elif "pt" in font_size:
-        return float(font_size.replace("pt", "")) * 1.33  # Convert pt to px
-    else:
-        return float(font_size)
+    # Handle font-size cases (rem, em, px, pt)
+    units = [("rem", root_font_size), ("em", root_font_size), ("px", 1), ("pt", 1.33)]
+    for unit, multiplier in units:
+        if unit in font_size:
+            return float(font_size.replace(unit, "")) * multiplier
 
+    # Default case if no recognizable unit is found
+    return float(font_size)
 
 if __name__ == "__main__":
     # Example usage
