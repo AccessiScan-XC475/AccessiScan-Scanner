@@ -108,12 +108,12 @@ def scan_images():
     # Initialize default values for total images and images with alt text
     total_images = 0
     images_with_alt = 0
+    score = 0
 
     # Check if the result is a dictionary and contains the necessary keys
     if isinstance(result, dict):
         total_images = result.get('total_images', 0)
         images_with_alt = result.get('images_with_alt', 0)
-        score = 0
         if total_images == 0:
             score = 100
         else:
@@ -125,7 +125,8 @@ def scan_images():
     # Return the formatted score and image counts, ensuring they are set to 0 if no images are found
     return {
         "details": (
-            f"There are {images_with_alt} image(s) with Alt Text out of {total_images} total image(s)."
+            f"There are {images_with_alt} image(s) with Alt Text out of 
+            {total_images} total image(s)."
         ),
         "images_with_alt": images_with_alt,
         "total_images": total_images,
