@@ -1,6 +1,7 @@
 """
 Module to check image accessibility based on the presence of alt text.
 """
+import math
 from services.html_parser import parse_html
 from utils.debug import debug_print
 
@@ -36,7 +37,7 @@ def score_image_accessibility(html):
     return {
         "images_with_alt": images_with_alt,
         "total_images": total_images,
-        "score": (images_with_alt / total_images) 
+    "score": math.floor((images_with_alt / total_images) * 1000) / 10,
     }
 
 
