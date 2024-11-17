@@ -56,7 +56,7 @@ def scan():
 
     # Return the score and the inaccessible elements
     return {
-        "score": f"{score}/100",
+        "score": f"{score}",
         "inaccessible_elements": inaccessible_html
     }
 
@@ -83,7 +83,7 @@ def scan_large_text():
 
     # Return the score and the inaccessible elements
     return {
-        "score": f"{score}/100",
+        "score": {score},
         "inaccessible_elements": text_inaccessible_html
     }
 
@@ -108,23 +108,29 @@ def scan_images():
     # Initialize default values for total images and images with alt text
     total_images = 0
     images_with_alt = 0
+    score = 0
 
     # Check if the result is a dictionary and contains the necessary keys
     if isinstance(result, dict):
         total_images = result.get('total_images', 0)
         images_with_alt = result.get('images_with_alt', 0)
+        if total_images == 0:
+            score = 100
+        else:
+            score = (images_with_alt/total_images)*100
 
     # Print debug information
     print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
 
     # Return the formatted score and image counts, ensuring they are set to 0 if no images are found
     return {
-        "score": (
-            f"Number of Images with Alt Text: {images_with_alt}<br>"
-            f"Total Number of Images on the Page: {total_images}"
+        "details": (
+            f"There are {images_with_alt} image(s) with Alt Text"
+            f"out of {total_images} total image(s)."
         ),
         "images_with_alt": images_with_alt,
-        "total_images": total_images
+        "total_images": total_images,
+        "score": score
     }
 
 if __name__ == "__main__":
