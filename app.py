@@ -82,7 +82,7 @@ def scan_large_text():
 
     # Return the score and the inaccessible elements
     return {
-        "score": {score},
+        "score": score,
         "inaccessible_elements": text_inaccessible_html
     }
 
