@@ -1,3 +1,6 @@
+"""
+make requests to the backend. automatically determines the correct domain and includes secret
+"""
 import os
 from requests import post
 
