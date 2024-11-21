@@ -1,8 +1,8 @@
 """ 
 updates a users score history
 """
-from requests import post
 import os
+from requests import post
 
 def log_selection(name:str):
     # save calls to backend and db
@@ -19,6 +19,6 @@ def log_selection(name:str):
     endpoint =f"{domain}/api/accessibility-selection?&name={name}&accessiscanSecret={a_sec}" 
     print("endpoint: ", endpoint)
     try:
-        post(endpoint)
+        post(endpoint, timeout=1000)
     except:
         print("error appending score")

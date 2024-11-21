@@ -1,8 +1,8 @@
 """ 
 updates a users score history
 """
-from requests import post
 import os
+from requests import post
 
 def append_score(secret:str, score):
     # save calls to backend and db
@@ -19,6 +19,6 @@ def append_score(secret:str, score):
     endpoint =f"{domain}/api/append?score={int(score)}&secret={secret}&accessiscanSecret={a_sec}" 
     print("endpoint: ", endpoint)
     try:
-        post(endpoint)
+        post(endpoint, timeout=1000)
     except:
         print("error appending score")
