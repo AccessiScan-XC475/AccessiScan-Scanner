@@ -5,6 +5,7 @@ in provided HTML and CSS content. The API serves as a backend for scanning web c
 to ensure accessibility standards are met.
 """
 import os
+from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, request
 from flask_cors import CORS
@@ -13,7 +14,6 @@ from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
 from scanners.line_spacing import score_line_spacing
 from utils.append_score import appendScore  # Import the new module
-from dotenv import load_dotenv
 from utils.append_selection import logSelection
 
 load_dotenv()
