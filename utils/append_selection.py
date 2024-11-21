@@ -1,6 +1,7 @@
 """ 
 updates a users score history
 """
+import requests
 from utils.backend_request import post_backend
 
 def log_selection(name:str):
@@ -13,5 +14,7 @@ def log_selection(name:str):
     print("endpoint: ", endpoint)
     try:
         post_backend(endpoint)
-    except:
-        print("error appending score")
+    except requests.exceptions.ConnectionError:
+        print("error logging selection. ensure the backend is running")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred when logging selection: {e}")
