@@ -16,7 +16,7 @@ def append_score(secret:str, score):
 
     # get secret to keep between backend and scanner
     a_sec = os.getenv("ACCESSISCAN_SECRET")
-    endpoint =f"{domain}/api/append?score={int(score)}&secret={secret}&accessiscanSecret={a_sec}" 
+    endpoint =f"{domain}/api/append?score={int(score)}&secret={secret}&accessiscanSecret={a_sec}"
     print("endpoint: ", endpoint)
     try:
         post(endpoint, timeout=1000)
