@@ -4,7 +4,7 @@ updates a users score history
 from requests import post
 import os
 
-def appendScore(secret:str, score):
+def append_score(secret:str, score):
     # save calls to backend and db
     if secret == "":
         return

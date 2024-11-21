@@ -4,7 +4,7 @@ updates a users score history
 from requests import post
 import os
 
-def logSelection(name:str):
+def log_selection(name:str):
     # save calls to backend and db
     if name == "":
         return

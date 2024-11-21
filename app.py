@@ -13,8 +13,8 @@ from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
 from scanners.line_spacing import score_line_spacing
-from utils.append_score import appendScore  # Import the new module
-from utils.append_selection import logSelection
+from utils.append_score import append_score  # Import the new module
+from utils.append_selection import log_selection
 
 load_dotenv()
 
@@ -61,8 +61,8 @@ def scan_color_contrast():
 
     # potentially slow function to be run asynchronously
     with ThreadPoolExecutor() as executor:
-        executor.submit(appendScore, data.get("secret", ""), score)
-        executor.submit(logSelection, "color-contrast")
+        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(log_selection, "color-contrast")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -90,8 +90,8 @@ def scan_large_text():
 
     # potentially slow function to be run asynchronously
     with ThreadPoolExecutor() as executor:
-        executor.submit(appendScore, data.get("secret", ""), score)
-        executor.submit(logSelection, "large-text")
+        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(log_selection, "large-text")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     text_inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -135,8 +135,8 @@ def scan_images():
             score = (images_with_alt/total_images)*100
         # potentially slow function to be run asynchronously
         with ThreadPoolExecutor() as executor:
-            executor.submit(appendScore, data.get("secret", ""), score)
-            executor.submit(logSelection, "alt-text")
+            executor.submit(append_score, data.get("secret", ""), score)
+            executor.submit(log_selection, "alt-text")
 
     # Print debug information
     print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
@@ -168,8 +168,8 @@ def scan_line_spacing():
 
     # potentially slow function to be run asynchronously
     with ThreadPoolExecutor() as executor:
-        executor.submit(appendScore, data.get("secret", ""), score)
-        executor.submit(logSelection, "line-spacing")
+        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(log_selection, "line-spacing")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
