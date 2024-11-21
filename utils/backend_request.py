@@ -15,5 +15,4 @@ def post_backend(endpoint: str):
     a_sec = os.getenv("ACCESSISCAN_SECRET")
     if "?" in endpoint:
         return post(domain + endpoint + f"&accessiscanSecret={a_sec}", timeout=t)
-    else:
-        return post(domain + endpoint + f"?accessiscanSecret={a_sec}", timeout=t)
+    return post(domain + endpoint + f"?accessiscanSecret={a_sec}", timeout=t)
