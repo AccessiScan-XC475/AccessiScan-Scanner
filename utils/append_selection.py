@@ -1,24 +1,16 @@
 """ 
 updates a users score history
 """
-import os
-from requests import post
+from utils.backend_request import post_backend
 
 def log_selection(name:str):
     # save calls to backend and db
     if name == "":
         return
-
-    # determine backend domain based on environment
-    domain = "https://accessiscan.vercel.app" \
-        if os.getenv("ENVIRONMENT") != "dev" else \
-        "http://localhost:3000"
-
     # get secret to keep between backend and scanner
-    a_sec = os.getenv("ACCESSISCAN_SECRET")
-    endpoint =f"{domain}/api/accessibility-selection?&name={name}&accessiscanSecret={a_sec}"
+    endpoint =f"/api/accessibility-selection?&name={name}"
     print("endpoint: ", endpoint)
     try:
-        post(endpoint, timeout=1000)
+        post_backend(endpoint)
     except:
         print("error appending score")
