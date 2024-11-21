@@ -6,3 +6,4 @@ pyvenv.cfg
 .vercel
 __pycache__/
 tmp*
+.env*

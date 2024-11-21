@@ -4,13 +4,19 @@ It includes endpoints to assess text color contrast and large text accessibility
 in provided HTML and CSS content. The API serves as a backend for scanning web content
 to ensure accessibility standards are met.
 """
-
+import os
+from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, request
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
-from scanners.line_spacing import score_line_spacing  # Import the new module
+from scanners.line_spacing import score_line_spacing
+from utils.append_score import appendScore  # Import the new module
+from dotenv import load_dotenv
+from utils.append_selection import logSelection
+
+load_dotenv()
 
 
 app = Flask(__name__)
@@ -40,7 +46,7 @@ def health():
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
-def scan():
+def scan_color_contrast():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
     Returns the color contrast score and list of inaccessible elements.
@@ -52,6 +58,11 @@ def scan():
     [score, inaccessible_elements] = score_text_contrast(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
+
+    # potentially slow function to be run asynchronously
+    with ThreadPoolExecutor() as executor:
+        executor.submit(appendScore, data.get("secret", ""), score)
+        executor.submit(logSelection, "color-contrast")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -76,6 +87,11 @@ def scan_large_text():
     [score, inaccessible_elements] = score_text_accessibility(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
+
+    # potentially slow function to be run asynchronously
+    with ThreadPoolExecutor() as executor:
+        executor.submit(appendScore, data.get("secret", ""), score)
+        executor.submit(logSelection, "large-text")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     text_inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -117,6 +133,10 @@ def scan_images():
             score = 100
         else:
             score = (images_with_alt/total_images)*100
+        # potentially slow function to be run asynchronously
+        with ThreadPoolExecutor() as executor:
+            executor.submit(appendScore, data.get("secret", ""), score)
+            executor.submit(logSelection, "alt-text")
 
     # Print debug information
     print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
@@ -146,6 +166,11 @@ def scan_line_spacing():
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
 
+    # potentially slow function to be run asynchronously
+    with ThreadPoolExecutor() as executor:
+        executor.submit(appendScore, data.get("secret", ""), score)
+        executor.submit(logSelection, "line-spacing")
+
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
 
@@ -156,4 +181,8 @@ def scan_line_spacing():
     }
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=4200)
+    if os.getenv("ENVIRONMENT") == "dev":
+        app.run(debug=True, host="0.0.0.0", port=4200)
+    else:
+        from waitress import serve
+        serve(app, host="0.0.0.0", port=4200)
