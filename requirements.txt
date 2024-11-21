@@ -12,3 +12,5 @@ numpy==2.1.1
 pillow==10.4.0
 soupsieve==2.6
 Werkzeug==3.0.4
+requests==2.31.0
+python-dotenv==1.0.0

@@ -5,19 +5,29 @@ in provided HTML and CSS content. The API serves as a backend for scanning web c
 to ensure accessibility standards are met.
 """
 
-from flask import Flask, request
+import os
+import requests
+from flask import Flask, request, jsonify
+from dotenv import load_dotenv
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
 from scanners.line_spacing import score_line_spacing  # Import the new module
 
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 cors = CORS(
     app, resources={r"/*": {"origins": "*"}}
 )  # CHANGE THIS AFTER DOMAINS HAVE BEEN ASSIGNED
 
+# GitHub OAuth constants
+GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
+GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
+CHROME_EXTENSION_ID = os.getenv("CHROME_EXTENSION_ID")
+REDIRECT_URI = f"https://{CHROME_EXTENSION_ID}.chromiumapp.org/"
 
 @app.route("/")
 def home():
@@ -37,6 +47,76 @@ def health():
     Returns OK if the API is running.
     """
     return "OK"
+
+@app.route('/routes')
+def list_routes():
+    from flask import url_for
+    output = []
+    for rule in app.url_map.iter_rules():
+        output.append({
+            "endpoint": rule.endpoint,
+            "methods": list(rule.methods),
+            "url": url_for(rule.endpoint, **(rule.defaults or {})),
+        })
+    return {"routes": output}
+
+@app.route("/api/auth/github/callback/extension", methods=["POST"])
+def github_callback():
+    """
+    Endpoint to handle GitHub OAuth callback for the Chrome extension.
+    Receives the authorization code and exchanges it for an access token.
+    """
+    data = request.get_json()
+    code = data.get("code")
+
+    if not code:
+        return jsonify({"error": "Authorization code is missing"}), 400
+
+    # Exchange the authorization code for an access token
+    token_url = "https://github.com/login/oauth/access_token"
+    headers = {'Accept': 'application/json'}
+    payload = {
+        'client_id': GITHUB_CLIENT_ID,
+        'client_secret': GITHUB_CLIENT_SECRET,
+        'code': code,
+        'redirect_uri': REDIRECT_URI
+    }
+
+    response = requests.post(token_url, json=payload, headers=headers)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to retrieve access token"}), 500
+
+    access_token = response.json().get("access_token")
+    if not access_token:
+        return jsonify({"error": "Access token not found in response"}), 500
+
+    # Return the access token to the Chrome extension
+    return jsonify({"access_token": access_token})
+
+@app.route("/api/auth/github/revoke", methods=["POST"])
+def revoke_github_token():
+    """
+    Revoke the GitHub OAuth token using the GitHub API.
+    """
+    data = request.get_json()
+    token = data.get("token")
+
+    if not token:
+        return jsonify({"error": "Token is required"}), 400
+
+    revoke_url = f"https://api.github.com/applications/{GITHUB_CLIENT_ID}/token"
+    auth_header = f"{GITHUB_CLIENT_ID}:{GITHUB_CLIENT_SECRET}"
+    headers = {
+        "Authorization": f"Basic {auth_header.encode('utf-8').decode('utf-8')}",
+        "Content-Type": "application/json",
+    }
+    payload = {"access_token": token}
+
+    response = requests.delete(revoke_url, json=payload, headers=headers)
+    if response.status_code == 204:  # Successful revocation
+        return jsonify({"message": "Token revoked successfully"}), 200
+    else:
+        return jsonify({"error": response.json()}), response.status_code
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
