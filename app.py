@@ -9,6 +9,7 @@ import os
 import requests
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+from base64 import b64encode
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
@@ -47,18 +48,6 @@ def health():
     Returns OK if the API is running.
     """
     return "OK"
-
-@app.route('/routes')
-def list_routes():
-    from flask import url_for
-    output = []
-    for rule in app.url_map.iter_rules():
-        output.append({
-            "endpoint": rule.endpoint,
-            "methods": list(rule.methods),
-            "url": url_for(rule.endpoint, **(rule.defaults or {})),
-        })
-    return {"routes": output}
 
 @app.route("/api/auth/github/callback/extension", methods=["POST"])
 def github_callback():
@@ -107,7 +96,7 @@ def revoke_github_token():
     revoke_url = f"https://api.github.com/applications/{GITHUB_CLIENT_ID}/token"
     auth_header = f"{GITHUB_CLIENT_ID}:{GITHUB_CLIENT_SECRET}"
     headers = {
-        "Authorization": f"Basic {auth_header.encode('utf-8').decode('utf-8')}",
+        "Authorization": f"Basic {b64encode(auth_header.encode()).decode()}",
         "Content-Type": "application/json",
     }
     payload = {"access_token": token}
