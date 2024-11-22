@@ -4,19 +4,17 @@ It includes endpoints to assess text color contrast and large text accessibility
 in provided HTML and CSS content. The API serves as a backend for scanning web content
 to ensure accessibility standards are met.
 """
+
 import os
-from concurrent.futures import ThreadPoolExecutor
+from base64 import b64encode
 import requests
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from base64 import b64encode
 from flask_cors import CORS
 from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
-from scanners.line_spacing import score_line_spacing
-from utils.append_score import append_score  # Import the new module
-from utils.append_selection import log_selection
+from scanners.line_spacing import score_line_spacing  # Import the new module
 
 # Load environment variables
 load_dotenv()
@@ -73,7 +71,7 @@ def github_callback():
         'redirect_uri': REDIRECT_URI
     }
 
-    response = requests.post(token_url, json=payload, headers=headers)
+    response = requests.post(token_url, json=payload, headers=headers, timeout=10)
     if response.status_code != 200:
         return jsonify({"error": "Failed to retrieve access token"}), 500
 
@@ -103,16 +101,15 @@ def revoke_github_token():
     }
     payload = {"access_token": token}
 
-    response = requests.delete(revoke_url, json=payload, headers=headers)
+    response = requests.delete(revoke_url, json=payload, headers=headers, timeout=10)
     if response.status_code == 204:  # Successful revocation
         return jsonify({"message": "Token revoked successfully"}), 200
-    else:
-        return jsonify({"error": response.json()}), response.status_code
+    return jsonify({"error": response.json()}), response.status_code
 
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
-def scan_color_contrast():
+def scan():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
     Returns the color contrast score and list of inaccessible elements.
@@ -124,11 +121,6 @@ def scan_color_contrast():
     [score, inaccessible_elements] = score_text_contrast(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
-
-    # potentially slow function to be run asynchronously
-    with ThreadPoolExecutor() as executor:
-        executor.submit(append_score, data.get("secret", ""), score)
-        executor.submit(log_selection, "color-contrast")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -153,11 +145,6 @@ def scan_large_text():
     [score, inaccessible_elements] = score_text_accessibility(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
-
-    # potentially slow function to be run asynchronously
-    with ThreadPoolExecutor() as executor:
-        executor.submit(append_score, data.get("secret", ""), score)
-        executor.submit(log_selection, "large-text")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     text_inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -199,10 +186,6 @@ def scan_images():
             score = 100
         else:
             score = (images_with_alt/total_images)*100
-        # potentially slow function to be run asynchronously
-        with ThreadPoolExecutor() as executor:
-            executor.submit(append_score, data.get("secret", ""), score)
-            executor.submit(log_selection, "alt-text")
 
     # Print debug information
     print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
@@ -232,11 +215,6 @@ def scan_line_spacing():
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
 
-    # potentially slow function to be run asynchronously
-    with ThreadPoolExecutor() as executor:
-        executor.submit(append_score, data.get("secret", ""), score)
-        executor.submit(log_selection, "line-spacing")
-
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
 
@@ -247,8 +225,4 @@ def scan_line_spacing():
     }
 
 if __name__ == "__main__":
-    if os.getenv("ENVIRONMENT") == "dev":
-        app.run(debug=True, host="0.0.0.0", port=4200)
-    else:
-        from waitress import serve
-        serve(app, host="0.0.0.0", port=4200)
+    app.run(debug=True, host="0.0.0.0", port=4200)
