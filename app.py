@@ -109,7 +109,7 @@ def revoke_github_token():
 
 
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
-def scan():
+def scan_color_contrast():
     """
     Endpoint to scan DOM and CSS for the text color contrast accessibility.
     Returns the color contrast score and list of inaccessible elements.
@@ -225,4 +225,8 @@ def scan_line_spacing():
     }
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=4200)
+    if os.getenv("ENVIRONMENT") == "prod":
+        from waitress import serve
+        serve(app, host="0.0.0.0", port=4200)
+    else:
+        app.run(debug=True, host="0.0.0.0", port=4200)
