@@ -248,7 +248,7 @@ def scan_line_spacing():
 
 if __name__ == "__main__":
     if os.getenv("ENVIRONMENT") == "prod":
-        app.run(debug=True, host="0.0.0.0", port=4200)
-    else:
         from waitress import serve
         serve(app, host="0.0.0.0", port=4200)
+    else:
+        app.run(debug=True, host="0.0.0.0", port=4200)
