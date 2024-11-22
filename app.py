@@ -108,6 +108,7 @@ def revoke_github_token():
         return jsonify({"error": response.json()}), response.status_code
 
 
+
 @app.route("/api/scan-contrasting-colors", methods=["POST"])
 def scan():
     """
