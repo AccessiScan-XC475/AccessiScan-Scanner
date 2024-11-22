@@ -6,6 +6,7 @@ to ensure accessibility standards are met.
 """
 
 import os
+from concurrent.futures import ThreadPoolExecutor
 from base64 import b64encode
 import requests
 from flask import Flask, request, jsonify
@@ -15,6 +16,8 @@ from scanners.color_contrast_scanner import score_text_contrast
 from scanners.text_scanner import score_text_accessibility
 from scanners.alt_text import score_image_accessibility
 from scanners.line_spacing import score_line_spacing  # Import the new module
+from utils.append_score import append_score  # Import the new module
+from utils.append_selection import log_selection
 
 # Load environment variables
 load_dotenv()
@@ -122,6 +125,11 @@ def scan_color_contrast():
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
 
+    # potentially slow function to be run asynchronously
+    with ThreadPoolExecutor() as executor:
+        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(log_selection, "color-contrast")
+
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
 
@@ -145,6 +153,11 @@ def scan_large_text():
     [score, inaccessible_elements] = score_text_accessibility(dom, css)
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
+
+    # potentially slow function to be run asynchronously
+    with ThreadPoolExecutor() as executor:
+        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(log_selection, "large-text")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
     text_inaccessible_html = [str(element) for element in inaccessible_elements]
@@ -186,6 +199,10 @@ def scan_images():
             score = 100
         else:
             score = (images_with_alt/total_images)*100
+        # potentially slow function to be run asynchronously
+        with ThreadPoolExecutor() as executor:
+            executor.submit(append_score, data.get("secret", ""), score)
+            executor.submit(log_selection, "alt-text")
 
     # Print debug information
     print(f"Total images: {total_images}, Images with alt text: {images_with_alt}")
@@ -215,6 +232,11 @@ def scan_line_spacing():
     print("score", score)
     print("Inaccessible elements:", inaccessible_elements)
 
+    # potentially slow function to be run asynchronously
+    with ThreadPoolExecutor() as executor:
+        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(log_selection, "line-spacing")
+
     # Convert the inaccessible elements into string representations (e.g., HTML)
     inaccessible_html = [str(element) for element in inaccessible_elements]
 
@@ -225,8 +247,8 @@ def scan_line_spacing():
     }
 
 if __name__ == "__main__":
-    if os.getenv("ENVIRONMENT") == "prod":
+    if os.getenv("ENVIRONMENT") == "dev":
+        app.run(debug=True, host="0.0.0.0", port=4200)
+    else:
         from waitress import serve
         serve(app, host="0.0.0.0", port=4200)
-    else:
-        app.run(debug=True, host="0.0.0.0", port=4200)
