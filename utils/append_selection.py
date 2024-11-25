@@ -10,7 +10,7 @@ def log_selection(name:str):
     if name == "":
         return
     # get secret to keep between backend and scanner
-    endpoint =f"/api/accessibility-selection?&name={name}"
+    endpoint =f"/api/accessibility-selection?&selection={name}"
     print("endpoint: ", endpoint)
     try:
         post_backend(endpoint)

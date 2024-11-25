@@ -3,15 +3,20 @@ updates a users score history
 """
 import requests
 from utils.backend_request import post_backend
+from urllib.parse import urlencode
 
-def append_score(secret:str, score):
+
+def append_score(secret, score, href, selection):
     """ add score to user's score history """
     # save calls to backend and db
     if secret == "":
+        print("no secret")
         return
 
-    endpoint =f"/api/append?score={int(score)}&secret={secret}"
+    href = urlencode({"href": href})
+    endpoint =f"/api/append?score={int(score)}&secret={secret}&{href}&selection={selection}"
     try:
+        print("posting to backkedn")
         post_backend(endpoint)
     except requests.exceptions.ConnectionError:
         print("error appending score. ensure the backend is running")

@@ -61,7 +61,7 @@ def scan_color_contrast():
 
     # potentially slow function to be run asynchronously
     with ThreadPoolExecutor() as executor:
-        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(append_score, data.get("secret", ""), score, data.get("href", ""), "color-contrast")
         executor.submit(log_selection, "color-contrast")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
@@ -90,7 +90,7 @@ def scan_large_text():
 
     # potentially slow function to be run asynchronously
     with ThreadPoolExecutor() as executor:
-        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(append_score, data.get("secret", ""), score, data.get("href", ""), "large-text")
         executor.submit(log_selection, "large-text")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
@@ -135,7 +135,8 @@ def scan_images():
             score = (images_with_alt/total_images)*100
         # potentially slow function to be run asynchronously
         with ThreadPoolExecutor() as executor:
-            executor.submit(append_score, data.get("secret", ""), score)
+            print("logging to backend")
+            executor.submit(append_score, data.get("secret", ""), score, data.get("href", ""), "alt-text")
             executor.submit(log_selection, "alt-text")
 
     # Print debug information
@@ -168,7 +169,7 @@ def scan_line_spacing():
 
     # potentially slow function to be run asynchronously
     with ThreadPoolExecutor() as executor:
-        executor.submit(append_score, data.get("secret", ""), score)
+        executor.submit(append_score, data.get("secret", ""), score, data.get("href", ""), "line-spacing")
         executor.submit(log_selection, "line-spacing")
 
     # Convert the inaccessible elements into string representations (e.g., HTML)
