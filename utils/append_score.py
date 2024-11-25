@@ -1,9 +1,9 @@
 """ 
 updates a users score history
 """
+from urllib.parse import urlencode
 import requests
 from utils.backend_request import post_backend
-from urllib.parse import urlencode
 
 
 def append_score(secret, score, href, selection):
