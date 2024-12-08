@@ -3,19 +3,13 @@ Calculates font size and line height.
 """
 def compute_font_size(text_elem_style, element_tag, root_font_size=16):
     """
-    This module contains utility functions for text-related computations, 
+    This module contains utility functions for text-related computations,
     including font size calculation and parsing styles for accessibility checks.
     """
     font_size = text_elem_style.get("font-size", "16px")
 
-    # Handle specific elements with default em sizes
-    default_sizes = {
-        "button": 0.83 * root_font_size,
-        "h1": 2 * root_font_size,
-        "h3": 1.17 * root_font_size
-    }
-    if element_tag in default_sizes:
-        return default_sizes[element_tag]
+    if len(element_tag) == 5:
+        print("element tag:", element_tag)
 
     # Handle font-size cases (rem, em, px, pt)
     units = [("rem", root_font_size), ("em", root_font_size), ("px", 1), ("pt", 1.33)]
